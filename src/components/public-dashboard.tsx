@@ -1,9 +1,7 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { format } from 'date-fns';
 
@@ -17,17 +15,6 @@ import {
 } from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { FileText, ImageIcon } from 'lucide-react';
-import { Skeleton } from './ui/skeleton';
-
-const PdfViewer = dynamic(() => import('./pdf-viewer').then(mod => mod.PdfViewer), { 
-    ssr: false,
-    loading: () => (
-      <div className="flex flex-col items-center h-full">
-        <Skeleton className="w-full h-full" />
-      </div>
-    )
-});
-
 
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
@@ -140,7 +127,12 @@ export default function PublicDashboard({
           </DialogHeader>
           <div className="h-full w-full py-4">
             {selectedMinute?.url && (
-              <PdfViewer file={selectedMinute.url} />
+              <iframe 
+                key={selectedMinute.id}
+                src={selectedMinute.url} 
+                className="w-full h-full"
+                title={selectedMinute.title}
+                />
             )}
           </div>
         </DialogContent>
