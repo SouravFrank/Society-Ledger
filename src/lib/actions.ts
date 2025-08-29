@@ -40,7 +40,7 @@ export async function loginAction(prevState: any, formData: FormData) {
 
 export async function logoutAction() {
   cookies().delete('auth_token');
-  redirect('/shibalik-b');
+  redirect('/');
 }
 
 export async function generateDescriptionAction(
@@ -93,7 +93,7 @@ export async function addMeetingMinuteAction(formData: FormData) {
     await addMeetingMinute(newMinute);
 
     revalidatePath('/shibalik-b/editor');
-    revalidatePath('/shibalik-b');
+    revalidatePath('/');
     return { success: true };
 }
 
@@ -131,6 +131,6 @@ export async function addFinancialStatementAction(formData: FormData) {
     });
 
     revalidatePath('/shibalik-b/editor');
-    revalidatePath('/shibalik-b');
+    revalidatePath('/');
     return { success: true };
 }
