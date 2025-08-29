@@ -7,6 +7,8 @@ export async function GET(
   request: Request,
   { params }: { params: { path: string[] } }
 ) {
+  // This route is no longer strictly necessary for the imported files,
+  // but can be kept for other resources or for the upload functionality.
   const filePath = path.join(process.cwd(), 'src', 'resources', ...params.path);
 
   try {
