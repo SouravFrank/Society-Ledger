@@ -38,7 +38,7 @@ export default function PublicDashboard({
         return `https://drive.google.com/file/d/${fileId}/preview`;
       }
     }
-    
+
     // For local/other URLs, use Google Docs Viewer
     const isAbsoluteUrl = url.startsWith('http://') || url.startsWith('https://');
     const fullUrl = isAbsoluteUrl ? url : new URL(url, window.location.origin).href;
@@ -76,12 +76,12 @@ export default function PublicDashboard({
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
-                <ImageIcon className="h-6 w-6" /> Financial Statements
+              <ImageIcon className="h-6 w-6" /> Financial Statements
             </CardTitle>
             <CardDescription>Select a period to view the financial statement.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-grow items-center justify-center p-6">
-             <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
+            <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
               <SelectTrigger className="w-full max-w-sm">
                 <SelectValue placeholder="Select a statement period" />
               </SelectTrigger>
@@ -96,7 +96,7 @@ export default function PublicDashboard({
           </CardContent>
         </Card>
       </div>
-      
+
       <Dialog open={!!selectedStatement || !!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) { setSelectedStatement(null); setSelectedMinute(null); } }}>
         <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
           <DialogHeader>
@@ -112,47 +112,47 @@ export default function PublicDashboard({
                 const isPdf = item.url.endsWith('.pdf') || (selectedMinute !== null);
 
                 if ((isDriveUrl || isPdf) && !selectedStatement) {
-                   return (
-                      <iframe
-                        key={item.id || item.period}
-                        src={getViewerUrl(item.url)}
-                        className="w-full h-full border-0 rounded-md"
-                        title={item.title}
-                      />
-                   );
+                  return (
+                    <iframe
+                      key={item.id || item.period}
+                      src={getViewerUrl(item.url)}
+                      className="w-full h-full border-0 rounded-md"
+                      title={item.title}
+                    />
+                  );
                 }
-                
+
                 if (isDriveUrl && selectedStatement) {
-                    return (
-                        <iframe
-                            key={item.period}
-                            src={getViewerUrl(item.url)}
-                            className="w-full h-full border-0 rounded-md"
-                            title={item.title}
-                        />
-                    );
+                  return (
+                    <iframe
+                      key={item?.period || item.title}
+                      src={getViewerUrl(item.url)}
+                      className="w-full h-full border-0 rounded-md"
+                      title={item.title}
+                    />
+                  );
                 }
 
                 // Fallback for local images
                 if (selectedStatement) {
-                    return (
-                         <div className="relative w-full h-full">
-                            <Image 
-                                src={selectedStatement.url} 
-                                alt={selectedStatement.title} 
-                                fill
-                                className="object-contain"
-                                data-ai-hint="financial document"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
-                                  target.srcset = '';
-                                }}
-                            />
-                        </div>
-                    )
+                  return (
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={selectedStatement.url}
+                        alt={selectedStatement.title}
+                        fill
+                        className="object-contain"
+                        data-ai-hint="financial document"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
+                          target.srcset = '';
+                        }}
+                      />
+                    </div>
+                  )
                 }
-                
+
                 return null;
               })()
             )}
