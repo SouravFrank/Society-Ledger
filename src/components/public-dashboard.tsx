@@ -63,7 +63,7 @@ export default function PublicDashboard({
               <SelectContent>
                 {meetingMinutes.map((minute) => (
                   <SelectItem key={minute.id} value={minute.id}>
-                    {format(new Date(minute.date), 'PPP')}
+                    {minute.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -101,9 +101,6 @@ export default function PublicDashboard({
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
           </DialogHeader>
           <div className="py-4 flex-1 flex flex-col">
-            <p className="text-sm text-muted-foreground mb-4">
-              Meeting held on {selectedMinute?.date ? format(new Date(selectedMinute.date), 'PPP') : ''}.
-            </p>
             {selectedMinute?.url && (
                 <div className="flex-1 w-full h-full">
                     <iframe src={selectedMinute.url} className="w-full h-full border rounded-md" title={selectedMinute.title} />
