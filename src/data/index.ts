@@ -1,6 +1,6 @@
-import type { FinancialStatement, MeetingMinute } from './types';
+import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 
-export const getInitialMeetingMinutes = (): MeetingMinute[] => [
+export const meetingMinutes: MeetingMinute[] = [
   {
     id: '2025-08-21-August-21-2024-Meeting',
     date: '2025-08-21',
@@ -21,7 +21,7 @@ export const getInitialMeetingMinutes = (): MeetingMinute[] => [
   }
 ];
 
-export const getInitialFinancialStatements = (): FinancialStatement[] => [
+export const financialStatements: FinancialStatement[] = [
     {
     period: '2024-07',
     url: '/resources/monthlyStatements/financial-statement-2024-07.png',

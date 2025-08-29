@@ -80,7 +80,7 @@ export async function addMeetingMinuteAction(prevState: any, data: FormData) {
     const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'moms');
     await fs.mkdir(resourcesDir, { recursive: true });
     
-    const fileName = `meeting-minute-${date}.${file.name.split('.').pop()}`;
+    const fileName = `MOM_${date.substring(5).replace('-', '-')}.${file.name.split('.').pop()}`;
     const filePath = path.join(resourcesDir, fileName);
     const fileUrl = `/resources/moms/${fileName}`;
     
