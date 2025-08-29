@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import fs from 'fs/promises';
+import path from 'path';
 
 import { generateDocumentDescription } from '@/ai/flows/generate-document-description';
 import { addFinancialStatement, addMeetingMinute } from './db';
@@ -53,19 +55,39 @@ export async function generateDescriptionAction(
   }
 }
 
+const fileSchema = z.custom<File>(val => val instanceof File, "Please upload a file");
+
 const minuteSchema = z.object({
   date: z.string(),
   title: z.string(),
   summary: z.string(),
-  url: z.string(),
+  file: fileSchema,
 });
 
-export async function addMeetingMinuteAction(data: unknown) {
-    const parsed = minuteSchema.safeParse(data);
+export async function addMeetingMinuteAction(data: FormData) {
+    const parsed = minuteSchema.safeParse({
+      date: data.get('date'),
+      title: data.get('title'),
+      summary: data.get('summary'),
+      file: data.get('file'),
+    });
+    
     if (!parsed.success) {
         return { error: 'Invalid data provided for meeting minute.'};
     }
-    await addMeetingMinute(parsed.data);
+
+    const { date, title, summary, file } = parsed.data;
+    
+    const resourcesDir = path.join(process.cwd(), 'src', 'resources');
+    await fs.mkdir(resourcesDir, { recursive: true });
+    
+    const fileName = `meeting-minute-${date}.${file.name.split('.').pop()}`;
+    const filePath = path.join(resourcesDir, fileName);
+    const fileUrl = `/resources/${fileName}`;
+    
+    await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+
+    await addMeetingMinute({ date, title, summary, url: fileUrl });
     revalidatePath('/editor');
     revalidatePath('/');
     return { success: true };
@@ -75,15 +97,33 @@ const statementSchema = z.object({
   period: z.string(),
   title: z.string(),
   summary: z.string(),
-  url: z.string(),
+  file: fileSchema,
 });
 
-export async function addFinancialStatementAction(data: unknown) {
-    const parsed = statementSchema.safeParse(data);
+export async function addFinancialStatementAction(data: FormData) {
+    const parsed = statementSchema.safeParse({
+        period: data.get('period'),
+        title: data.get('title'),
+        summary: data.get('summary'),
+        file: data.get('file'),
+    });
+
     if (!parsed.success) {
         return { error: 'Invalid data provided for financial statement.'};
     }
-    await addFinancialStatement(parsed.data);
+    
+    const { period, title, summary, file } = parsed.data;
+
+    const resourcesDir = path.join(process.cwd(), 'src', 'resources');
+    await fs.mkdir(resourcesDir, { recursive: true });
+
+    const fileName = `financial-statement-${period}.${file.name.split('.').pop()}`;
+    const filePath = path.join(resourcesDir, fileName);
+    const fileUrl = `/resources/${fileName}`;
+
+    await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+
+    await addFinancialStatement({ period, title, summary, url: fileUrl });
     revalidatePath('/editor');
     revalidatePath('/');
     return { success: true };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { useFormState } from 'react-dom';
 import { format } from 'date-fns';
 import {
@@ -32,6 +32,8 @@ export default function EditorDashboard({
   initialFinancialStatements,
 }: EditorDashboardProps) {
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
 
   // Meeting Minutes Form State
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
@@ -60,72 +62,82 @@ export default function EditorDashboard({
     if(type === 'meetingMinutes') setIsGeneratingMinuteDesc(true);
     else setIsGeneratingStatementDesc(true);
 
-    // In a real app, you might read the file content. Here we use a mock.
-    const mockContent = `File: ${file.name}, Size: ${file.size} bytes. This is a mock document content.`;
-    const result = await generateDescriptionAction(type, mockContent);
+    const fileReader = new FileReader();
+    fileReader.readAsText(file);
+    fileReader.onload = async () => {
+        const content = fileReader.result as string;
+        const result = await generateDescriptionAction(type, content);
 
-    if (result.success && result.data) {
-      if (type === 'meetingMinutes') {
-        setMinuteTitle(result.data.title);
-        setMinuteSummary(result.data.summary);
-      } else {
-        setStatementTitle(result.data.title);
-        setStatementSummary(result.data.summary);
-      }
-      toast({ title: 'Success', description: 'Description generated successfully.' });
-    } else {
-      toast({ variant: 'destructive', title: 'Error', description: result.error });
+        if (result.success && result.data) {
+          if (type === 'meetingMinutes') {
+            setMinuteTitle(result.data.title);
+            setMinuteSummary(result.data.summary);
+          } else {
+            setStatementTitle(result.data.title);
+            setStatementSummary(result.data.summary);
+          }
+          toast({ title: 'Success', description: 'Description generated successfully.' });
+        } else {
+          toast({ variant: 'destructive', title: 'Error', description: result.error });
+        }
+        
+        if(type === 'meetingMinutes') setIsGeneratingMinuteDesc(false);
+        else setIsGeneratingStatementDesc(false);
     }
-    
-    if(type === 'meetingMinutes') setIsGeneratingMinuteDesc(false);
-    else setIsGeneratingStatementDesc(false);
   };
 
-  const handleMinuteSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
+  const handleMinuteSubmit = (formData: FormData) => {
       if (!minuteDate || !minuteFile || !minuteTitle || !minuteSummary) {
           toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the meeting minute.' });
           return;
       }
-      const data = {
-          date: format(minuteDate, 'yyyy-MM-dd'),
-          url: '#', // Mock URL
-          title: minuteTitle,
-          summary: minuteSummary,
-      };
-      const result = await addMeetingMinuteAction(data);
-      if (result?.success) {
-          toast({ title: 'Success', description: 'Meeting minute added.' });
-          setMinuteDate(undefined);
-          setMinuteFile(null);
-          setMinuteTitle('');
-          setMinuteSummary('');
-      } else {
-          toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add meeting minute.' });
-      }
+      formData.set('date', format(minuteDate, 'yyyy-MM-dd'));
+      formData.set('title', minuteTitle);
+      formData.set('summary', minuteSummary);
+      formData.set('file', minuteFile);
+      
+      startTransition(async () => {
+        const result = await addMeetingMinuteAction(formData);
+        if (result?.success) {
+            toast({ title: 'Success', description: 'Meeting minute added.' });
+            setMinuteDate(undefined);
+            setMinuteFile(null);
+            setMinuteTitle('');
+            setMinuteSummary('');
+            // Reset file input
+            const fileInput = document.getElementById('minute-file') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add meeting minute.' });
+        }
+      });
   }
 
-  const handleStatementSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleStatementSubmit = (formData: FormData) => {
     if (!statementFile || !statementTitle || !statementSummary) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the financial statement.' });
         return;
     }
-    const data = {
-        period: `${statementPeriod.year}-${String(statementPeriod.month).padStart(2, '0')}`,
-        url: 'https://picsum.photos/800/1100', // Mock URL
-        title: statementTitle,
-        summary: statementSummary,
-    };
-    const result = await addFinancialStatementAction(data);
-      if (result?.success) {
-          toast({ title: 'Success', description: 'Financial statement added.' });
-          setStatementFile(null);
-          setStatementTitle('');
-          setStatementSummary('');
-      } else {
-          toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add financial statement.' });
-      }
+    
+    formData.set('period', `${statementPeriod.year}-${String(statementPeriod.month).padStart(2, '0')}`);
+    formData.set('title', statementTitle);
+    formData.set('summary', statementSummary);
+    formData.set('file', statementFile);
+    
+    startTransition(async () => {
+        const result = await addFinancialStatementAction(formData);
+        if (result?.success) {
+            toast({ title: 'Success', description: 'Financial statement added.' });
+            setStatementFile(null);
+            setStatementTitle('');
+            setStatementSummary('');
+             // Reset file input
+            const fileInput = document.getElementById('statement-file') as HTMLInputElement;
+            if (fileInput) fileInput.value = '';
+        } else {
+            toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add financial statement.' });
+        }
+    });
   }
 
   return (
@@ -142,7 +154,7 @@ export default function EditorDashboard({
                     <CardTitle>Upload Meeting Minutes</CardTitle>
                     <CardDescription>Upload a PDF of the meeting minutes.</CardDescription>
                 </CardHeader>
-                <form onSubmit={handleMinuteSubmit}>
+                <form action={handleMinuteSubmit}>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label>Meeting Date</Label>
@@ -150,7 +162,7 @@ export default function EditorDashboard({
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="minute-file">PDF File</Label>
-                        <Input id="minute-file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} />
+                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} />
                     </div>
                     <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('meetingMinutes')} disabled={!minuteFile || isGeneratingMinuteDesc}>
                         <Sparkles className="mr-2 h-4 w-4" />
@@ -158,15 +170,15 @@ export default function EditorDashboard({
                     </Button>
                     <div className="space-y-2">
                         <Label htmlFor="minute-title">Title</Label>
-                        <Input id="minute-title" value={minuteTitle} onChange={(e) => setMinuteTitle(e.target.value)} placeholder="AI-generated title..." />
+                        <Input id="minute-title" name="title" value={minuteTitle} onChange={(e) => setMinuteTitle(e.target.value)} placeholder="AI-generated title..." />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="minute-summary">Summary</Label>
-                        <Textarea id="minute-summary" value={minuteSummary} onChange={(e) => setMinuteSummary(e.target.value)} placeholder="AI-generated summary..." />
+                        <Textarea id="minute-summary" name="summary" value={minuteSummary} onChange={(e) => setMinuteSummary(e.target.value)} placeholder="AI-generated summary..." />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit">Save Minute</Button>
+                    <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save Minute"}</Button>
                 </CardFooter>
                 </form>
             </Card>
@@ -203,7 +215,7 @@ export default function EditorDashboard({
                     <CardTitle>Upload Financial Statement</CardTitle>
                     <CardDescription>Upload an image of the financial statement.</CardDescription>
                 </CardHeader>
-                 <form onSubmit={handleStatementSubmit}>
+                 <form action={handleStatementSubmit}>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label>Statement Period</Label>
@@ -211,7 +223,7 @@ export default function EditorDashboard({
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="statement-file">Image File</Label>
-                        <Input id="statement-file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} />
+                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} />
                     </div>
                      <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('financialStatement')} disabled={!statementFile || isGeneratingStatementDesc}>
                         <Sparkles className="mr-2 h-4 w-4" />
@@ -219,15 +231,15 @@ export default function EditorDashboard({
                     </Button>
                     <div className="space-y-2">
                         <Label htmlFor="statement-title">Title</Label>
-                        <Input id="statement-title" value={statementTitle} onChange={(e) => setStatementTitle(e.target.value)} placeholder="AI-generated title..."/>
+                        <Input id="statement-title" name="title" value={statementTitle} onChange={(e) => setStatementTitle(e.target.value)} placeholder="AI-generated title..."/>
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="statement-summary">Summary</Label>
-                        <Textarea id="statement-summary" value={statementSummary} onChange={(e) => setStatementSummary(e.target.value)} placeholder="AI-generated summary..." />
+                        <Textarea id="statement-summary" name="summary" value={statementSummary} onChange={(e) => setStatementSummary(e.target.value)} placeholder="AI-generated summary..." />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit">Save Statement</Button>
+                    <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save Statement"}</Button>
                 </CardFooter>
                 </form>
             </Card>
@@ -247,6 +259,7 @@ export default function EditorDashboard({
                             {initialFinancialStatements.map((statement) => (
                                 <TableRow key={statement.period}>
                                     <TableCell>{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
+
                                     <TableCell>{statement.title}</TableCell>
                                 </TableRow>
                             ))}
