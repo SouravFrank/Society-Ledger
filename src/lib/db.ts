@@ -7,30 +7,30 @@ const resourcesDir = path.join(process.cwd(), 'src', 'resources');
 const getInitialMeetingMinutes = (): MeetingMinute[] => [
   {
     date: '2024-08-21',
-    url: '/resources/moms/MOM_21_08.pdf',
-    title: 'August 21 2024 Meeting',
-    summary: 'General body meeting to discuss upcoming events.'
+    url: '/resources/moms/meeting-minute-2024-08-21.pdf',
+    title: 'August 21 2024 General Body Meeting',
+    summary: 'Discussion about the upcoming fall event and budget allocation.'
   },
   {
     date: '2024-08-28',
-    url: '/resources/moms/MOM_28_08.pdf',
-    title: 'August 28 2024 Meeting',
-    summary: 'Follow-up meeting on event planning and budget.'
+    url: '/resources/moms/meeting-minute-2024-08-28.pdf',
+    title: 'August 28 2024 General Body Meeting',
+    summary: 'Final planning for the fall event and review of Q3 financials.'
   },
 ];
 
 const getInitialFinancialStatements = (): FinancialStatement[] => [
     {
     period: '2024-07',
-    url: '/resources/monthlyStatements/July.png',
+    url: '/resources/monthlyStatements/financial-statement-2024-07.png',
     title: 'July 2024 Financial Statement',
-    summary: 'Statement of income and expenses for July 2024.',
+    summary: 'Statement of income and expenses for July 2024.'
   },
   {
     period: '2024-08',
-    url: '/resources/monthlyStatements/August.png',
+    url: '/resources/monthlyStatements/financial-statement-2024-08.png',
     title: 'August 2024 Financial Statement',
-    summary: 'Statement of income and expenses for August 2024, including initial event costs.',
+    summary: 'Statement of income and expenses for August 2024, including initial event costs.'
   },
 ];
 
@@ -63,13 +63,21 @@ async function loadData() {
 }
 
 async function saveData() {
-  const initialData = {
-    meetingMinutes: getInitialMeetingMinutes(),
-    financialStatements: getInitialFinancialStatements()
+  const dataToSave = {
+    meetingMinutes,
+    financialStatements
   };
-  await fs.writeFile(dataFilePath, JSON.stringify(initialData, null, 2), 'utf-8');
-  meetingMinutes = initialData.meetingMinutes;
-  financialStatements = initialData.financialStatements;
+   try {
+    await fs.access(dataFilePath);
+    // If we can access it, we can write to it.
+  } catch {
+    // If it doesn't exist, create it with initial data.
+    dataToSave.meetingMinutes = getInitialMeetingMinutes();
+    dataToSave.financialStatements = getInitialFinancialStatements();
+  }
+  await fs.writeFile(dataFilePath, JSON.stringify(dataToSave, null, 2), 'utf-8');
+  meetingMinutes = dataToSave.meetingMinutes;
+  financialStatements = dataToSave.financialStatements;
 }
 
 loadData();
@@ -81,7 +89,7 @@ export const getMeetingMinutes = async (): Promise<MeetingMinute[]> => {
   return Promise.resolve(meetingMinutes.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 };
 
-export const addMeetingMinute = async (minute: Omit<MeetingMinute, 'summary'> & { summary: string }): Promise<void> => {
+export const addMeetingMinute = async (minute: MeetingMinute): Promise<void> => {
   await loadData();
   meetingMinutes.push(minute);
   await saveData();
