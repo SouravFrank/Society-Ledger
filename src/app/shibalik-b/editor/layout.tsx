@@ -9,12 +9,12 @@ export default function EditorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full flex-col editor-bg">
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b border-b-white/20 bg-black/20 px-4 md:px-6 backdrop-blur-lg">
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <nav className="flex w-full flex-row items-center gap-5 text-sm font-medium">
           <Link
             href="/shibalik-b/editor"
-            className="flex items-center gap-2 text-lg font-semibold md:text-base text-white"
+            className="flex items-center gap-2 text-lg font-semibold md:text-base"
           >
             <BookCopy className="h-6 w-6" />
             <span>Editor Dashboard</span>
@@ -22,7 +22,7 @@ export default function EditorLayout({
         </nav>
         <div className="flex items-center gap-4 md:ml-auto">
           <form action={logoutAction}>
-              <Button variant="outline" size="sm" type="submit" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
+              <Button variant="outline" size="sm" type="submit">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
               </Button>

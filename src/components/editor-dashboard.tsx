@@ -8,6 +8,7 @@ import {
 } from '@/lib/actions';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -17,7 +18,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { DatePicker } from './ui/date-picker';
 import { MonthYearPicker } from './month-year-picker';
-import { useRouter } from 'next/navigation';
 
 interface EditorDashboardProps {
   initialMeetingMinutes: MeetingMinute[];
@@ -32,19 +32,17 @@ export default function EditorDashboard({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  // Meeting Minutes Form State
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteFile, setMinuteFile] = useState<File | null>(null);
   const [minuteTitle, setMinuteTitle] = useState('');
   
-  // Financial Statements Form State
   const [statementPeriod, setStatementPeriod] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [statementTitle, setStatementTitle] = useState('');
 
   useEffect(() => {
     if (minuteDate) {
-      setMinuteTitle(format(minuteDate, 'MMMM d yyyy \'Summery\''));
+      setMinuteTitle(format(minuteDate, "MMMM d yyyy 'Summery'"));
     } else {
       setMinuteTitle('');
     }
@@ -52,9 +50,8 @@ export default function EditorDashboard({
 
   useEffect(() => {
     const date = new Date(statementPeriod.year, statementPeriod.month - 1);
-    setStatementTitle(format(date, 'MMMM yyyy \'Financial Statement\''));
+    setStatementTitle(format(date, "MMMM yyyy 'Financial Statement'"));
   }, [statementPeriod]);
-
 
   const handleMinuteSubmit = (formData: FormData) => {
       if (!minuteDate || !minuteFile || !minuteTitle) {
@@ -71,7 +68,6 @@ export default function EditorDashboard({
             toast({ title: 'Success', description: 'Meeting minute added.' });
             setMinuteDate(undefined);
             setMinuteFile(null);
-            // Reset file input
             const fileInput = document.getElementById('minute-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
             router.refresh();
@@ -96,7 +92,6 @@ export default function EditorDashboard({
         if (result?.success) {
             toast({ title: 'Success', description: 'Financial statement added.' });
             setStatementFile(null);
-             // Reset file input
             const fileInput = document.getElementById('statement-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
             router.refresh();
@@ -105,123 +100,117 @@ export default function EditorDashboard({
         }
     });
   }
-  
-  const GlassCard = ({ children, className }: { children: React.ReactNode, className?: string }) => (
-    <div className={`bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg ${className}`}>
-      {children}
-    </div>
-  );
 
   return (
     <Tabs defaultValue="minutes">
-      <div className="flex justify-center mb-6">
-        <TabsList className="bg-white/20 border border-white/20">
-            <TabsTrigger value="minutes" className="data-[state=active]:bg-white/20">Meeting Minutes</TabsTrigger>
-            <TabsTrigger value="statements" className="data-[state=active]:bg-white/20">Financial Statements</TabsTrigger>
+      <div className="flex justify-start mb-6">
+        <TabsList>
+            <TabsTrigger value="minutes">Meeting Minutes</TabsTrigger>
+            <TabsTrigger value="statements">Financial Statements</TabsTrigger>
         </TabsList>
       </div>
       
       <TabsContent value="minutes">
         <div className="grid gap-8 md:grid-cols-2">
-            <GlassCard>
+            <Card>
                 <CardHeader>
-                    <CardTitle className="text-white">Upload Meeting Minutes</CardTitle>
-                    <CardDescription className="text-gray-200">Upload a PDF of the meeting minutes.</CardDescription>
+                    <CardTitle>Upload Meeting Minutes</CardTitle>
+                    <CardDescription>Upload a PDF of the meeting minutes.</CardDescription>
                 </CardHeader>
                 <form action={handleMinuteSubmit}>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label className="text-gray-200">Meeting Date</Label>
+                        <Label>Meeting Date</Label>
                         <DatePicker date={minuteDate} setDate={setMinuteDate} />
+                         {minuteTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{minuteTitle}"</p>}
                     </div>
-                     {minuteTitle && <p className="text-sm text-gray-300 italic">Title: "{minuteTitle}"</p>}
                     <div className="space-y-2">
-                        <Label htmlFor="minute-file" className="text-gray-200">PDF File</Label>
-                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} className="text-gray-200 file:text-gray-300"/>
+                        <Label htmlFor="minute-file">PDF File</Label>
+                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !minuteFile || !minuteDate} className="bg-white/20 hover:bg-white/30 text-white">{isPending ? "Saving..." : "Save Minute"}</Button>
+                    <Button type="submit" disabled={isPending || !minuteFile || !minuteDate}>{isPending ? "Saving..." : "Save Minute"}</Button>
                 </CardFooter>
                 </form>
-            </GlassCard>
-            <GlassCard>
+            </Card>
+            <Card>
                 <CardHeader>
-                    <CardTitle className="text-white">Existing Meeting Minutes</CardTitle>
+                    <CardTitle>Existing Meeting Minutes</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="max-h-96 overflow-y-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-white/20">
-                                    <TableHead className="text-gray-200">Date</TableHead>
-                                    <TableHead className="text-gray-200">Title</TableHead>
+                                <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Title</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {initialMeetingMinutes.map((minute) => (
-                                    <TableRow key={minute.id} className="border-white/20">
-                                        <TableCell className="text-gray-300">{format(new Date(minute.date), 'PPP')}</TableCell>
-                                        <TableCell className="text-gray-300">{minute.title}</TableCell>
+                                    <TableRow key={minute.id}>
+                                        <TableCell>{format(new Date(minute.date), 'PPP')}</TableCell>
+                                        <TableCell>{minute.title}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </div>
                 </CardContent>
-            </GlassCard>
+            </Card>
         </div>
       </TabsContent>
 
       <TabsContent value="statements">
       <div className="grid gap-8 md:grid-cols-2">
-            <GlassCard>
+            <Card>
                 <CardHeader>
-                    <CardTitle className="text-white">Upload Financial Statement</CardTitle>
-                    <CardDescription className="text-gray-200">Upload an image of the financial statement.</CardDescription>
+                    <CardTitle>Upload Financial Statement</CardTitle>
+                    <CardDescription>Upload an image of the financial statement.</CardDescription>
                 </CardHeader>
                  <form action={handleStatementSubmit}>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                     <div className="space-y-2">
-                        <Label className="text-gray-200">Statement Period</Label>
+                        <Label>Statement Period</Label>
                         <MonthYearPicker period={statementPeriod} onPeriodChange={setStatementPeriod} />
+                         {statementTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{statementTitle}"</p>}
                     </div>
-                    {statementTitle && <p className="text-sm text-gray-300 italic">Title: "{statementTitle}"</p>}
                     <div className="space-y-2">
-                        <Label htmlFor="statement-file" className="text-gray-200">Image File</Label>
-                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="text-gray-200 file:text-gray-300"/>
+                        <Label htmlFor="statement-file">Image File</Label>
+                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !statementFile} className="bg-white/20 hover:bg-white/30 text-white">{isPending ? "Saving..." : "Save Statement"}</Button>
+                    <Button type="submit" disabled={isPending || !statementFile}>{isPending ? "Saving..." : "Save Statement"}</Button>
                 </CardFooter>
                 </form>
-            </GlassCard>
-            <GlassCard>
+            </Card>
+            <Card>
                 <CardHeader>
-                    <CardTitle className="text-white">Existing Financial Statements</CardTitle>
+                    <CardTitle>Existing Financial Statements</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="max-h-96 overflow-y-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-white/20">
-                                    <TableHead className="text-gray-200">Period</TableHead>
-                                    <TableHead className="text-gray-200">Title</TableHead>
+                                <TableRow>
+                                    <TableHead>Period</TableHead>
+                                    <TableHead>Title</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {initialFinancialStatements.map((statement) => (
-                                    <TableRow key={statement.period} className="border-white/20">
-                                        <TableCell className="text-gray-300">{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
-                                        <TableCell className="text-gray-300">{statement.title}</TableCell>
+                                    <TableRow key={statement.period}>
+                                        <TableCell>{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
+                                        <TableCell>{statement.title}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </div>
                 </CardContent>
-            </GlassCard>
+            </Card>
         </div>
       </TabsContent>
     </Tabs>
