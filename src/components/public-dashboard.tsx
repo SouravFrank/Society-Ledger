@@ -26,7 +26,7 @@ export default function PublicDashboard({
   meetingMinutes,
   financialStatements,
 }: PublicDashboardProps) {
-  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(meetingMinutes.length > 0 ? meetingMinutes[0] : null);
+  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
 
   const handleMinuteSelect = (id: string) => {
@@ -80,7 +80,7 @@ export default function PublicDashboard({
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
              <Select onValueChange={handleStatementSelect}>
-              <SelectTrigger className="w-[280px]">
+              <SelectTrigger className="w-full max-w-xs">
                 <SelectValue placeholder="Select a statement period" />
               </SelectTrigger>
               <SelectContent>
