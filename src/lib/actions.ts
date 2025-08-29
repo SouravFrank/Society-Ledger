@@ -10,6 +10,7 @@ import path from 'path';
 import { generateDocumentDescription } from '@/ai/flows/generate-document-description';
 import { addFinancialStatement, addMeetingMinute } from './db';
 import { MeetingMinute } from './types';
+import { editorCredentials } from '@/data/credentials';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -23,8 +24,7 @@ export async function loginAction(prevState: any, formData: FormData) {
     return { error: 'Invalid email or password.' };
   }
   
-  // Mock authentication: in a real app, you'd verify credentials against a database
-  if (parsed.data.email === 'editor@example.com' && parsed.data.password === 'password') {
+  if (parsed.data.email === editorCredentials.email && parsed.data.password === editorCredentials.password) {
     cookies().set('auth_token', 'editor-secret-token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
