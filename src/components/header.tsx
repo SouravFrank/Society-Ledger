@@ -5,7 +5,7 @@ export function Header() {
   return (
     <header className="w-full bg-background py-4 flex justify-center">
       <div className="container px-4 md:px-6 flex justify-center">
-        <Link href="/">
+        <Link href="/shibalik-b">
           <Image
             src="/resources/letter-header-only.png"
             alt="Society Header"

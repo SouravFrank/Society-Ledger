@@ -1,5 +1,5 @@
 
 export const editorCredentials = {
-  email: 'editor@example.com',
+  username: 'editor@example.com',
   password: 'password',
 };

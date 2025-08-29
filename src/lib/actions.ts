@@ -24,7 +24,7 @@ export async function loginAction(prevState: any, formData: FormData) {
     return { error: 'Invalid email or password.' };
   }
   
-  if (parsed.data.email === editorCredentials.email && parsed.data.password === editorCredentials.password) {
+  if (parsed.data.email === editorCredentials.username && parsed.data.password === editorCredentials.password) {
     cookies().set('auth_token', 'editor-secret-token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -35,12 +35,12 @@ export async function loginAction(prevState: any, formData: FormData) {
     return { error: 'Invalid email or password.' };
   }
 
-  redirect('/editor');
+  redirect('/shibalik-b/editor');
 }
 
 export async function logoutAction() {
   cookies().delete('auth_token');
-  redirect('/');
+  redirect('/shibalik-b');
 }
 
 export async function generateDescriptionAction(
@@ -92,8 +92,8 @@ export async function addMeetingMinuteAction(formData: FormData) {
     };
     await addMeetingMinute(newMinute);
 
-    revalidatePath('/editor');
-    revalidatePath('/');
+    revalidatePath('/shibalik-b/editor');
+    revalidatePath('/shibalik-b');
     return { success: true };
 }
 
@@ -130,7 +130,7 @@ export async function addFinancialStatementAction(formData: FormData) {
         url: `/resources/monthlyStatements/${fileName}` 
     });
 
-    revalidatePath('/editor');
-    revalidatePath('/');
+    revalidatePath('/shibalik-b/editor');
+    revalidatePath('/shibalik-b');
     return { success: true };
 }

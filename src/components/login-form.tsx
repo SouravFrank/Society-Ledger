@@ -4,9 +4,6 @@ import { useFormState, useFormStatus } from 'react-dom';
 import { loginAction } from '@/lib/actions';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import { AlertCircle } from 'lucide-react';
 import { useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,7 +29,6 @@ export function LoginForm() {
   return (
     <form action={formAction} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           name="email"
@@ -42,7 +38,6 @@ export function LoginForm() {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
         <Input 
             id="password" 
             name="password" 
