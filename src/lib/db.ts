@@ -1,39 +1,9 @@
 import type { FinancialStatement, MeetingMinute } from './types';
 import fs from 'fs/promises';
 import path from 'path';
+import { getInitialMeetingMinutes, getInitialFinancialStatements } from './initial-data';
 
 const resourcesDir = path.join(process.cwd(), 'src', 'resources');
-
-const getInitialMeetingMinutes = (): MeetingMinute[] => [
-  {
-    date: '2024-08-21',
-    url: '/resources/moms/meeting-minute-2024-08-21.pdf',
-    title: 'August 21 2024 General Body Meeting',
-    summary: 'Discussion about the upcoming fall event and budget allocation.'
-  },
-  {
-    date: '2024-08-28',
-    url: '/resources/moms/meeting-minute-2024-08-28.pdf',
-    title: 'August 28 2024 General Body Meeting',
-    summary: 'Final planning for the fall event and review of Q3 financials.'
-  },
-];
-
-const getInitialFinancialStatements = (): FinancialStatement[] => [
-    {
-    period: '2024-07',
-    url: '/resources/monthlyStatements/financial-statement-2024-07.png',
-    title: 'July 2024 Financial Statement',
-    summary: 'Statement of income and expenses for July 2024.'
-  },
-  {
-    period: '2024-08',
-    url: '/resources/monthlyStatements/financial-statement-2024-08.png',
-    title: 'August 2024 Financial Statement',
-    summary: 'Statement of income and expenses for August 2024, including initial event costs.'
-  },
-];
-
 
 let meetingMinutes: MeetingMinute[] = getInitialMeetingMinutes();
 let financialStatements: FinancialStatement[] = getInitialFinancialStatements();
