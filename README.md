@@ -65,7 +65,7 @@ To get a local copy up and running, follow these simple steps.
 4.  **Open your browser:**
     Navigate to [http://localhost:9002](http://localhost:9002) to see the application in action.
     - The public viewer is at `/shibalik-b`.
-    - The editor login is at `/shibalik-b/login`.
+    - The editor login is at `/shibalik-b/editor`.
 
 ### Editor Credentials
 
