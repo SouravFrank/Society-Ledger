@@ -1,9 +1,4 @@
-'use server';
-
 import { z } from 'zod';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
 
 import { addFinancialStatement, addMeetingMinute } from './db';
 import { MeetingMinute } from './types';
@@ -22,22 +17,14 @@ export async function loginAction(prevState: any, formData: FormData) {
   }
   
   if (parsed.data.username === editorCredentials.username && parsed.data.password === editorCredentials.password) {
-    cookies().set('auth_token', 'editor-secret-token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 1 day
-      path: '/',
-    });
+    return { success: true };
   } else {
     return { error: 'Invalid username or password.' };
   }
-
-  redirect('/shibalik-b/editor');
 }
 
 export async function logoutAction() {
-  cookies().delete('auth_token');
-  redirect('/shibalik-b/login');
+  return { success: true };
 }
 
 const minuteSchema = z.object({
@@ -66,8 +53,6 @@ export async function addMeetingMinuteAction(formData: FormData) {
     };
     await addMeetingMinute(newMinute);
 
-    revalidatePath('/shibalik-b/editor');
-    revalidatePath('/');
     return { success: true };
 }
 
@@ -96,7 +81,5 @@ export async function addFinancialStatementAction(formData: FormData) {
         url,
     });
 
-    revalidatePath('/shibalik-b/editor');
-    revalidatePath('/');
     return { success: true };
 }

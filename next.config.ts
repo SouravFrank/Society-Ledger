@@ -39,9 +39,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['fs'],
-  },
+  serverExternalPackages: ['fs'], // updated as per Next.js warning
 };
 
 export default nextConfig;
