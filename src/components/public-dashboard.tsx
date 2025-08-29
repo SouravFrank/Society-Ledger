@@ -45,8 +45,8 @@ export default function PublicDashboard({
     }
   }
 
-  // Check if it's a Google Drive URL and construct the preview URL
   const getEmbedUrl = (url: string) => {
+    // Check if it's a Google Drive URL and construct the preview URL
     if (url.includes('drive.google.com')) {
       const match = url.match(/file\/d\/(.*?)\//);
       if (match && match[1]) {
@@ -65,7 +65,7 @@ export default function PublicDashboard({
 
   return (
     <div className="container py-8">
-      <div className="grid gap-8 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
         <Card>
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
@@ -75,7 +75,7 @@ export default function PublicDashboard({
           </CardHeader>
           <CardContent className="flex justify-center">
             <Select onValueChange={handleMinuteSelect}>
-              <SelectTrigger className="w-[280px]">
+              <SelectTrigger className="w-full max-w-sm">
                 <SelectValue placeholder="Select a meeting date" />
               </SelectTrigger>
               <SelectContent>
@@ -98,7 +98,7 @@ export default function PublicDashboard({
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
              <Select onValueChange={handleStatementSelect}>
-              <SelectTrigger className="w-full max-w-xs">
+              <SelectTrigger className="w-full max-w-sm">
                 <SelectValue placeholder="Select a statement period" />
               </SelectTrigger>
               <SelectContent>
@@ -115,21 +115,21 @@ export default function PublicDashboard({
       
       {/* Dialog for Financial Statements (Images) */}
       <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
-        <DialogContent className="max-w-4xl h-[90vh]">
+        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{selectedStatement?.title}</DialogTitle>
           </DialogHeader>
-          <div className="h-full w-full py-4">
+          <div className="flex-1 w-full py-4">
             {selectedStatement?.url && (
               isGoogleDriveUrl(selectedStatement.url) ? (
                 <iframe
                   key={selectedStatement.period}
                   src={getEmbedUrl(selectedStatement.url)}
-                  className="w-full h-full"
+                  className="w-full h-full border-0 rounded-md"
                   title={selectedStatement.title}
                 />
               ) : (
-                <div className="relative aspect-[8/11] w-full h-full">
+                <div className="relative w-full h-full">
                   <Image 
                       src={selectedStatement.url} 
                       alt={selectedStatement.title} 
@@ -151,16 +151,16 @@ export default function PublicDashboard({
 
       {/* Dialog for Meeting Minutes (PDFs) */}
       <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
-        <DialogContent className="max-w-4xl h-[90vh]">
+        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
           </DialogHeader>
-          <div className="h-full w-full py-4">
+          <div className="flex-1 w-full py-4">
             {selectedMinute?.url && (
               <iframe 
                 key={selectedMinute.id}
                 src={getEmbedUrl(selectedMinute.url)} 
-                className="w-full h-full"
+                className="w-full h-full border-0 rounded-md"
                 title={selectedMinute.title}
                 />
             )}
