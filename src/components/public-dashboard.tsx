@@ -29,9 +29,9 @@ export default function PublicDashboard({
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
 
-  const handleMinuteSelect = (date: string) => {
-    if (!date) return;
-    const minute = meetingMinutes.find(m => m.date === date);
+  const handleMinuteSelect = (value: string) => {
+    if (!value) return;
+    const minute = meetingMinutes.find(m => `${m.date}-${m.title}` === value);
     if (minute) {
       setSelectedMinute(minute);
     }
@@ -62,8 +62,8 @@ export default function PublicDashboard({
               </SelectTrigger>
               <SelectContent>
                 {meetingMinutes.map((minute) => (
-                  <SelectItem key={minute.date} value={minute.date}>
-                    {format(new Date(minute.date), 'PPP')}
+                  <SelectItem key={`${minute.date}-${minute.title}`} value={`${minute.date}-${minute.title}`}>
+                    {format(new Date(minute.date), 'PPP')} - {minute.title}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -86,7 +86,7 @@ export default function PublicDashboard({
               <SelectContent>
                 {financialStatements.map((statement) => (
                   <SelectItem key={statement.period} value={statement.period}>
-                    {format(new Date(`${statement.period}-02`), 'MMMM yyyy')}
+                    {format(new Date(statement.period.replace(/:/g, '-')), 'MMMM yyyy')}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -137,4 +137,3 @@ export default function PublicDashboard({
       </Dialog>
     </div>
   );
-}
