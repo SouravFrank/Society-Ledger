@@ -44,6 +44,13 @@ export default function PublicDashboard({
     }
   }
 
+  // Construct the full URL for the Google Docs Viewer
+  const getPdfViewerUrl = (pdfUrl: string) => {
+    // Ensure we have the full URL, not just a relative path
+    const fullUrl = new URL(pdfUrl, window.location.origin).href;
+    return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+  };
+
   return (
     <div className="container py-8">
       <div className="grid gap-8 md:grid-cols-2">
@@ -129,7 +136,7 @@ export default function PublicDashboard({
             {selectedMinute?.url && (
               <iframe 
                 key={selectedMinute.id}
-                src={selectedMinute.url} 
+                src={getPdfViewerUrl(selectedMinute.url)} 
                 className="w-full h-full"
                 title={selectedMinute.title}
                 />
