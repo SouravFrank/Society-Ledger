@@ -33,7 +33,7 @@ export default function PublicDashboard({
     if (!id) return;
     const minute = meetingMinutes.find(m => m.id === id);
     if (minute) {
-      setSelectedMinute(minute);
+      window.open(minute.url, '_blank');
     }
   };
   
@@ -94,24 +94,6 @@ export default function PublicDashboard({
           </CardContent>
         </Card>
       </div>
-
-      <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
-        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{selectedMinute?.title}</DialogTitle>
-          </DialogHeader>
-          <div className="py-4 flex-1 flex flex-col">
-            {selectedMinute?.url && (
-                <div className="flex-1 w-full h-full">
-                    <iframe src={selectedMinute.url} className="w-full h-full border rounded-md" title={selectedMinute.title} />
-                </div>
-            )}
-            <Button asChild className="mt-4 w-fit">
-              <a href={selectedMinute?.url} target="_blank" rel="noopener noreferrer">Download PDF</a>
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
       
       <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
         <DialogContent className="max-w-4xl">
@@ -127,6 +109,11 @@ export default function PublicDashboard({
                     fill
                     className="object-contain"
                     data-ai-hint="financial document"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
+                      target.srcset = '';
+                    }}
                 />
             )}
           </div>
