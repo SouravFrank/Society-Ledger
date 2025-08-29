@@ -26,7 +26,7 @@ export default function PublicDashboard({
   meetingMinutes,
   financialStatements,
 }: PublicDashboardProps) {
-  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
+  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(meetingMinutes.length > 0 ? meetingMinutes[0] : null);
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
 
   const handleMinuteSelect = (id: string) => {
