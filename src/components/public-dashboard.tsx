@@ -6,10 +6,15 @@ import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { format } from 'date-fns';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Calendar } from './ui/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
-import { MonthYearPicker } from './month-year-picker';
 import { FileText, ImageIcon } from 'lucide-react';
 
 interface PublicDashboardProps {
@@ -21,35 +26,22 @@ export default function PublicDashboard({
   meetingMinutes,
   financialStatements,
 }: PublicDashboardProps) {
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [period, setPeriod] = useState<{ month: number, year: number }>({
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear(),
-  });
-
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
 
-  const minuteDates = meetingMinutes.map(m => new Date(m.date));
-
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    if (!selectedDate) return;
-
-    const dateString = format(selectedDate, 'yyyy-MM-dd');
-    const minute = meetingMinutes.find(m => m.date === dateString);
+  const handleMinuteSelect = (date: string) => {
+    if (!date) return;
+    const minute = meetingMinutes.find(m => m.date === date);
     if (minute) {
       setSelectedMinute(minute);
     }
   };
   
-  const handlePeriodSearch = () => {
-    const periodString = `${period.year}-${String(period.month).padStart(2, '0')}`;
-    const statement = financialStatements.find(s => s.period === periodString);
+  const handleStatementSelect = (period: string) => {
+    if (!period) return;
+    const statement = financialStatements.find(s => s.period === period);
     if (statement) {
       setSelectedStatement(statement);
-    } else {
-      alert("No statement found for this period.")
     }
   }
 
@@ -64,14 +56,18 @@ export default function PublicDashboard({
             <CardDescription>Select a date to view the meeting minutes.</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={handleDateSelect}
-              modifiers={{ highlighted: minuteDates }}
-              modifiersStyles={{ highlighted: { border: '2px solid hsl(var(--primary))', borderRadius: 'var(--radius)'} }}
-              className="rounded-md border"
-            />
+            <Select onValueChange={handleMinuteSelect}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Select a meeting date" />
+              </SelectTrigger>
+              <SelectContent>
+                {meetingMinutes.map((minute) => (
+                  <SelectItem key={minute.date} value={minute.date}>
+                    {format(new Date(minute.date), 'PPP')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
 
@@ -80,19 +76,26 @@ export default function PublicDashboard({
             <CardTitle className="font-headline flex items-center gap-2">
                 <ImageIcon className="h-6 w-6" /> Financial Statements
             </CardTitle>
-            <CardDescription>Select a month and year to view the financial statement.</CardDescription>
+            <CardDescription>Select a period to view the financial statement.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center gap-4">
-            <MonthYearPicker
-                period={period}
-                onPeriodChange={setPeriod}
-            />
-            <Button onClick={handlePeriodSearch}>View Statement</Button>
+             <Select onValueChange={handleStatementSelect}>
+              <SelectTrigger className="w-[280px]">
+                <SelectValue placeholder="Select a statement period" />
+              </SelectTrigger>
+              <SelectContent>
+                {financialStatements.map((statement) => (
+                  <SelectItem key={statement.period} value={statement.period}>
+                    {format(new Date(statement.period + '-02'), 'MMMM yyyy')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
       </div>
 
-      <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => !isOpen && setSelectedMinute(null)}>
+      <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
@@ -109,7 +112,7 @@ export default function PublicDashboard({
         </DialogContent>
       </Dialog>
       
-      <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => !isOpen && setSelectedStatement(null)}>
+      <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{selectedStatement?.title}</DialogTitle>
