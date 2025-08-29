@@ -46,8 +46,9 @@ export default function PublicDashboard({
 
   // Construct the full URL for the Google Docs Viewer
   const getPdfViewerUrl = (pdfUrl: string) => {
-    // Ensure we have the full URL, not just a relative path
-    const fullUrl = new URL(pdfUrl, window.location.origin).href;
+    // Check if the URL is absolute or a local path
+    const isAbsoluteUrl = pdfUrl.startsWith('http://') || pdfUrl.startsWith('https://');
+    const fullUrl = isAbsoluteUrl ? pdfUrl : new URL(pdfUrl, window.location.origin).href;
     return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
   };
 
@@ -57,7 +58,7 @@ export default function PublicDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
-              <FileText className="h-6 w-6" /> Minutes of Meeting
+              <FileText className="h-6 w-6" /> Meeting Minutes
             </CardTitle>
             <CardDescription>Select a date to view the meeting minutes.</CardDescription>
           </CardHeader>
