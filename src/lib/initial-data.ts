@@ -2,19 +2,22 @@ import type { FinancialStatement, MeetingMinute } from './types';
 
 export const getInitialMeetingMinutes = (): MeetingMinute[] => [
   {
-    date: '2024-08-21',
-    url: '/resources/moms/MOM_21_08.pdf',
-    title: 'August 21 2024 General Body Meeting',
+    id: '2025-08-21-August-21-2024-Meeting',
+    date: '2025-08-21',
+    url: '/resources/moms/MOM_21-08.pdf',
+    title: 'August 21 2024 Meeting',
   },
   {
-    date: '2024-08-28',
-    url: '/resources/moms/MOM_28_08.pdf',
-    title: 'August 28 2024 General Body Meeting',
+    id: '2025-08-28-August-28-2024-Meeting',
+    date: '2025-08-28',
+    url: '/resources/moms/MOM_28-08.pdf',
+    title: 'August 28 2024 Meeting',
   },
   {
+    id: '2024-11-24-November-24-2024-Meeting',
     date: '2024-11-24',
-    url: '/resources/moms/MOM_24_11.pdf',
-    title: 'November 24 2024 General Body Meeting'
+    url: '/resources/moms/MOM_24-11.pdf',
+    title: 'November 24 2024 Meeting'
   }
 ];
 

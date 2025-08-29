@@ -5,7 +5,7 @@ import { getFinancialStatements, getMeetingMinutes } from '@/lib/db';
 export default async function Home() {
   const meetingMinutes = await getMeetingMinutes();
   const financialStatements = await getFinancialStatements();
-
+console.log("hi", meetingMinutes)
   return (
     <>
       <Header />

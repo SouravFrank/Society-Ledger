@@ -16,7 +16,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-export async function loginAction(formData: FormData) {
+export async function loginAction(prevState: any, formData: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!parsed.success) {
@@ -64,7 +64,7 @@ const minuteSchema = z.object({
   file: fileSchema,
 });
 
-export async function addMeetingMinuteAction(data: FormData) {
+export async function addMeetingMinuteAction(prevState: any, data: FormData) {
     const parsed = minuteSchema.safeParse({
       date: data.get('date'),
       title: data.get('title'),
@@ -99,7 +99,7 @@ const statementSchema = z.object({
   file: fileSchema,
 });
 
-export async function addFinancialStatementAction(data: FormData) {
+export async function addFinancialStatementAction(prevState: any, data: FormData) {
     const parsed = statementSchema.safeParse({
         period: data.get('period'),
         title: data.get('title'),

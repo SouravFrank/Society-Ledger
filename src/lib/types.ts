@@ -1,4 +1,5 @@
 export type MeetingMinute = {
+  id: string;
   date: string; // YYYY-MM-DD
   url: string;
   title: string;

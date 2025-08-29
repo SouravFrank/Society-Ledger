@@ -3,72 +3,59 @@ import fs from 'fs/promises';
 import path from 'path';
 import { getInitialMeetingMinutes, getInitialFinancialStatements } from './initial-data';
 
-const resourcesDir = path.join(process.cwd(), 'src', 'resources');
+const dataDir = path.join(process.cwd(), 'src', 'data');
+const dataFilePath = path.join(dataDir, 'data.json');
 
-let meetingMinutes: MeetingMinute[] = getInitialMeetingMinutes();
-let financialStatements: FinancialStatement[] = getInitialFinancialStatements();
-
-const dataFilePath = path.join(resourcesDir, 'data.json');
+let meetingMinutes: MeetingMinute[] = [];
+let financialStatements: FinancialStatement[] = [];
 
 async function loadData() {
   try {
-    await fs.access(resourcesDir);
-  } catch {
-    await fs.mkdir(resourcesDir, { recursive: true });
-  }
-
-  try {
     const data = await fs.readFile(dataFilePath, 'utf-8');
     const jsonData = JSON.parse(data);
-    if (jsonData.meetingMinutes && jsonData.financialStatements) {
-      meetingMinutes = jsonData.meetingMinutes;
-      financialStatements = jsonData.financialStatements;
-    } else {
-      await saveData();
-    }
+    meetingMinutes = jsonData.meetingMinutes || getInitialMeetingMinutes();
+    financialStatements = jsonData.financialStatements || getInitialFinancialStatements();
   } catch (error) {
-    // data.json doesn't exist, so we'll create it with initial data.
+    // If data.json doesn't exist or is invalid, use initial data
+    meetingMinutes = getInitialMeetingMinutes();
+    financialStatements = getInitialFinancialStatements();
     await saveData();
   }
 }
 
 async function saveData() {
-  const dataToSave = {
-    meetingMinutes,
-    financialStatements
-  };
-   try {
-    await fs.access(dataFilePath);
-    // If we can access it, we can write to it.
-  } catch {
-    // If it doesn't exist, create it with initial data.
-    dataToSave.meetingMinutes = getInitialMeetingMinutes();
-    dataToSave.financialStatements = getInitialFinancialStatements();
-  }
-  await fs.writeFile(dataFilePath, JSON.stringify(dataToSave, null, 2), 'utf-8');
-  meetingMinutes = dataToSave.meetingMinutes;
-  financialStatements = dataToSave.financialStatements;
+    try {
+        await fs.mkdir(dataDir, { recursive: true });
+        const dataToSave = {
+            meetingMinutes,
+            financialStatements
+        };
+        await fs.writeFile(dataFilePath, JSON.stringify(dataToSave, null, 2), 'utf-8');
+    } catch (error) {
+        console.error("Failed to save data", error);
+    }
 }
 
+// Initial load
 loadData();
-
 
 // Simulate async DB calls
 export const getMeetingMinutes = async (): Promise<MeetingMinute[]> => {
   await loadData();
-  return Promise.resolve(meetingMinutes.sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  return Promise.resolve([...meetingMinutes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 };
 
-export const addMeetingMinute = async (minute: MeetingMinute): Promise<void> => {
+export const addMeetingMinute = async (minute: Omit<MeetingMinute, 'id'>): Promise<void> => {
   await loadData();
-  meetingMinutes.push(minute);
+  const newMinute = { ...minute, id: `${minute.date}-${minute.title}` };
+  meetingMinutes.push(newMinute);
   await saveData();
   return Promise.resolve();
 };
 
 export const getFinancialStatements = async (): Promise<FinancialStatement[]> => {
   await loadData();
-  return Promise.resolve(financialStatements.sort((a,b) => new Date(b.period + '-01').getTime() - new Date(a.period + '-01').getTime()));
+  return Promise.resolve([...financialStatements].sort((a,b) => new Date(b.period + '-01').getTime() - new Date(a.period + '-01').getTime()));
 };
 
 export const addFinancialStatement = async (statement: FinancialStatement): Promise<void> => {

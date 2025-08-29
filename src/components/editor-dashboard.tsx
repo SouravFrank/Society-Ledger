@@ -188,7 +188,7 @@ export default function EditorDashboard({
                         </TableHeader>
                         <TableBody>
                             {initialMeetingMinutes.map((minute) => (
-                                <TableRow key={minute.date}>
+                                <TableRow key={minute.id}>
                                     <TableCell>{format(new Date(minute.date), 'PPP')}</TableCell>
                                     <TableCell>{minute.title}</TableCell>
                                 </TableRow>
