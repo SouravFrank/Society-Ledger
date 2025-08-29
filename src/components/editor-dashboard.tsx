@@ -39,7 +39,6 @@ export default function EditorDashboard({
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteFile, setMinuteFile] = useState<File | null>(null);
   const [minuteTitle, setMinuteTitle] = useState('');
-  const [minuteSummary, setMinuteSummary] = useState('');
   const [isGeneratingMinuteDesc, setIsGeneratingMinuteDesc] = useState(false);
   
   // Financial Statements Form State
@@ -71,7 +70,6 @@ export default function EditorDashboard({
         if (result.success && result.data) {
           if (type === 'meetingMinutes') {
             setMinuteTitle(result.data.title);
-            setMinuteSummary(result.data.summary);
           } else {
             setStatementTitle(result.data.title);
             setStatementSummary(result.data.summary);
@@ -87,13 +85,12 @@ export default function EditorDashboard({
   };
 
   const handleMinuteSubmit = (formData: FormData) => {
-      if (!minuteDate || !minuteFile || !minuteTitle || !minuteSummary) {
+      if (!minuteDate || !minuteFile || !minuteTitle) {
           toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the meeting minute.' });
           return;
       }
       formData.set('date', format(minuteDate, 'yyyy-MM-dd'));
       formData.set('title', minuteTitle);
-      formData.set('summary', minuteSummary);
       formData.set('file', minuteFile);
       
       startTransition(async () => {
@@ -103,7 +100,6 @@ export default function EditorDashboard({
             setMinuteDate(undefined);
             setMinuteFile(null);
             setMinuteTitle('');
-            setMinuteSummary('');
             // Reset file input
             const fileInput = document.getElementById('minute-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
@@ -166,15 +162,11 @@ export default function EditorDashboard({
                     </div>
                     <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('meetingMinutes')} disabled={!minuteFile || isGeneratingMinuteDesc}>
                         <Sparkles className="mr-2 h-4 w-4" />
-                        {isGeneratingMinuteDesc ? 'Generating...' : 'Generate Title & Summary'}
+                        {isGeneratingMinuteDesc ? 'Generating...' : 'Generate Title'}
                     </Button>
                     <div className="space-y-2">
                         <Label htmlFor="minute-title">Title</Label>
                         <Input id="minute-title" name="title" value={minuteTitle} onChange={(e) => setMinuteTitle(e.target.value)} placeholder="AI-generated title..." />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="minute-summary">Summary</Label>
-                        <Textarea id="minute-summary" name="summary" value={minuteSummary} onChange={(e) => setMinuteSummary(e.target.value)} placeholder="AI-generated summary..." />
                     </div>
                 </CardContent>
                 <CardFooter>

@@ -61,7 +61,6 @@ const fileSchema = z.custom<File>(val => val instanceof File, "Please upload a f
 const minuteSchema = z.object({
   date: z.string(),
   title: z.string(),
-  summary: z.string(),
   file: fileSchema,
 });
 
@@ -69,7 +68,6 @@ export async function addMeetingMinuteAction(data: FormData) {
     const parsed = minuteSchema.safeParse({
       date: data.get('date'),
       title: data.get('title'),
-      summary: data.get('summary'),
       file: data.get('file'),
     });
     
@@ -77,7 +75,7 @@ export async function addMeetingMinuteAction(data: FormData) {
         return { error: 'Invalid data provided for meeting minute.'};
     }
 
-    const { date, title, summary, file } = parsed.data;
+    const { date, title, file } = parsed.data;
     
     const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'moms');
     await fs.mkdir(resourcesDir, { recursive: true });
@@ -88,7 +86,7 @@ export async function addMeetingMinuteAction(data: FormData) {
     
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
-    await addMeetingMinute({ date, title, summary, url: fileUrl });
+    await addMeetingMinute({ date, title, url: fileUrl });
     revalidatePath('/editor');
     revalidatePath('/');
     return { success: true };

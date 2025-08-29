@@ -2,7 +2,6 @@ export type MeetingMinute = {
   date: string; // YYYY-MM-DD
   url: string;
   title: string;
-  summary: string;
 };
 
 export type FinancialStatement = {

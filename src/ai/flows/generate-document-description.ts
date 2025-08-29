@@ -23,7 +23,7 @@ export type GenerateDocumentDescriptionInput = z.infer<typeof GenerateDocumentDe
 
 const GenerateDocumentDescriptionOutputSchema = z.object({
   title: z.string().describe('A concise title for the document.'),
-  summary: z.string().describe('A brief summary of the document content.'),
+  summary: z.string().optional().describe('A brief summary of the document content.'),
 });
 export type GenerateDocumentDescriptionOutput = z.infer<typeof GenerateDocumentDescriptionOutputSchema>;
 
@@ -37,13 +37,19 @@ const prompt = ai.definePrompt({
   name: 'generateDocumentDescriptionPrompt',
   input: {schema: GenerateDocumentDescriptionInputSchema},
   output: {schema: GenerateDocumentDescriptionOutputSchema},
-  prompt: `You are an expert administrative assistant. Based on the document type and content, generate a title and summary.
+  prompt: `You are an expert administrative assistant. Based on the document type and content, generate a title and optionally a summary.
+
+For meeting minutes, only generate a title.
+For financial statements, generate both a title and a summary.
 
 Document Type: {{{documentType}}}
 Document Content: {{{documentContent}}}
 
 Title: 
-Summary: `,
+{{#if (eq documentType "financialStatement")}}
+Summary:
+{{/if}}
+`,
 });
 
 const generateDocumentDescriptionFlow = ai.defineFlow(

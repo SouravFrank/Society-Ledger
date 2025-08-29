@@ -99,7 +99,6 @@ export default function PublicDashboard({
         <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
-            <DialogDescription>{selectedMinute?.summary}</DialogDescription>
           </DialogHeader>
           <div className="py-4 flex-1 flex flex-col">
             <p className="text-sm text-muted-foreground mb-4">
