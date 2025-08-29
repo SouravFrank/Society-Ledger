@@ -21,6 +21,7 @@ import { DatePicker } from './ui/date-picker';
 import { MonthYearPicker } from './month-year-picker';
 import { Textarea } from './ui/textarea';
 import { Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface EditorDashboardProps {
   initialMeetingMinutes: MeetingMinute[];
@@ -33,7 +34,7 @@ export default function EditorDashboard({
 }: EditorDashboardProps) {
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-
+  const router = useRouter();
 
   // Meeting Minutes Form State
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
@@ -48,9 +49,6 @@ export default function EditorDashboard({
   const [statementSummary, setStatementSummary] = useState('');
   const [isGeneratingStatementDesc, setIsGeneratingStatementDesc] = useState(false);
 
-  const [minuteFormState, minuteFormAction] = useFormState(addMeetingMinuteAction, undefined);
-  const [statementFormState, statementFormAction] = useFormState(addFinancialStatementAction, undefined);
-
   const handleGenerateDesc = async (type: 'meetingMinutes' | 'financialStatement') => {
     const file = type === 'meetingMinutes' ? minuteFile : statementFile;
     if (!file) {
@@ -62,7 +60,7 @@ export default function EditorDashboard({
     else setIsGeneratingStatementDesc(true);
 
     const fileReader = new FileReader();
-    fileReader.readAsText(file);
+    fileReader.readAsDataURL(file);
     fileReader.onload = async () => {
         const content = fileReader.result as string;
         const result = await generateDescriptionAction(type, content);
@@ -72,7 +70,7 @@ export default function EditorDashboard({
             setMinuteTitle(result.data.title);
           } else {
             setStatementTitle(result.data.title);
-            setStatementSummary(result.data.summary);
+            if(result.data.summary) setStatementSummary(result.data.summary);
           }
           toast({ title: 'Success', description: 'Description generated successfully.' });
         } else {
@@ -103,6 +101,7 @@ export default function EditorDashboard({
             // Reset file input
             const fileInput = document.getElementById('minute-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
+            router.refresh();
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add meeting minute.' });
         }
@@ -130,6 +129,7 @@ export default function EditorDashboard({
              // Reset file input
             const fileInput = document.getElementById('statement-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
+            router.refresh();
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add financial statement.' });
         }

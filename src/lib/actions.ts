@@ -64,11 +64,11 @@ const minuteSchema = z.object({
   file: fileSchema,
 });
 
-export async function addMeetingMinuteAction(prevState: any, data: FormData) {
+export async function addMeetingMinuteAction(formData: FormData) {
     const parsed = minuteSchema.safeParse({
-      date: data.get('date'),
-      title: data.get('title'),
-      file: data.get('file'),
+      date: formData.get('date'),
+      title: formData.get('title'),
+      file: formData.get('file'),
     });
     
     if (!parsed.success) {
@@ -85,9 +85,12 @@ export async function addMeetingMinuteAction(prevState: any, data: FormData) {
     
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
-    // This won't actually add to the statically imported list, but in a real DB it would.
-    // We'll just log it to show the action works.
-    console.log('Would add meeting minute:', { date, title, url: `/resources/moms/${fileName}` });
+    const newMinute: Omit<MeetingMinute, 'id'> = {
+        date,
+        title,
+        url: `/resources/moms/${fileName}`,
+    };
+    await addMeetingMinute(newMinute);
 
     revalidatePath('/editor');
     revalidatePath('/');
@@ -101,12 +104,12 @@ const statementSchema = z.object({
   file: fileSchema,
 });
 
-export async function addFinancialStatementAction(prevState: any, data: FormData) {
+export async function addFinancialStatementAction(formData: FormData) {
     const parsed = statementSchema.safeParse({
-        period: data.get('period'),
-        title: data.get('title'),
-        summary: data.get('summary'),
-        file: data.get('file'),
+        period: formData.get('period'),
+        title: formData.get('title'),
+        summary: formData.get('summary'),
+        file: formData.get('file'),
     });
 
     if (!parsed.success) {
@@ -123,8 +126,12 @@ export async function addFinancialStatementAction(prevState: any, data: FormData
 
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
-    // This won't actually add to the statically imported list, but in a real DB it would.
-    console.log('Would add financial statement:', { period, title, summary, url: `/resources/monthlyStatements/${fileName}` });
+    await addFinancialStatement({ 
+        period, 
+        title, 
+        summary, 
+        url: `/resources/monthlyStatements/${fileName}` 
+    });
 
     revalidatePath('/editor');
     revalidatePath('/');
