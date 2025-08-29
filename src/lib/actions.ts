@@ -13,7 +13,7 @@ import { MeetingMinute } from './types';
 import { editorCredentials } from '@/data/credentials';
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  username: z.string(),
   password: z.string().min(1),
 });
 
@@ -21,10 +21,10 @@ export async function loginAction(prevState: any, formData: FormData) {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!parsed.success) {
-    return { error: 'Invalid email or password.' };
+    return { error: 'Invalid username or password.' };
   }
   
-  if (parsed.data.email === editorCredentials.username && parsed.data.password === editorCredentials.password) {
+  if (parsed.data.username === editorCredentials.username && parsed.data.password === editorCredentials.password) {
     cookies().set('auth_token', 'editor-secret-token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -32,7 +32,7 @@ export async function loginAction(prevState: any, formData: FormData) {
       path: '/',
     });
   } else {
-    return { error: 'Invalid email or password.' };
+    return { error: 'Invalid username or password.' };
   }
 
   redirect('/shibalik-b/editor');

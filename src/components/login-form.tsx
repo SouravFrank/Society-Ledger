@@ -30,9 +30,9 @@ export function LoginForm() {
     <form action={formAction} className="space-y-4">
       <div className="space-y-2">
         <Input
-          id="email"
-          name="email"
-          type="email"
+          id="username"
+          name="username"
+          type="text"
           placeholder="Username"
           required
         />
