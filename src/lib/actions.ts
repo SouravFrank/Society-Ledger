@@ -7,7 +7,6 @@ import { revalidatePath } from 'next/cache';
 import fs from 'fs/promises';
 import path from 'path';
 
-import { generateDocumentDescription } from '@/ai/flows/generate-document-description';
 import { addFinancialStatement, addMeetingMinute } from './db';
 import { MeetingMinute } from './types';
 import { editorCredentials } from '@/data/credentials';
@@ -40,20 +39,7 @@ export async function loginAction(prevState: any, formData: FormData) {
 
 export async function logoutAction() {
   cookies().delete('auth_token');
-  redirect('/');
-}
-
-export async function generateDescriptionAction(
-  documentType: 'meetingMinutes' | 'financialStatement',
-  documentContent: string,
-) {
-  try {
-    const result = await generateDocumentDescription({ documentType, documentContent });
-    return { success: true, data: result };
-  } catch (error) {
-    console.error(error);
-    return { success: false, error: 'Failed to generate description.' };
-  }
+  redirect('/shibalik-b/login');
 }
 
 const fileSchema = z.custom<File>(val => val instanceof File, "Please upload a file");

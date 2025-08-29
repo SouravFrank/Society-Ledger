@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { useFormState } from 'react-dom';
+import { useState, useTransition, useEffect } from 'react';
 import { format } from 'date-fns';
 import {
   addFinancialStatementAction,
   addMeetingMinuteAction,
-  generateDescriptionAction,
 } from '@/lib/actions';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +17,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { DatePicker } from './ui/date-picker';
 import { MonthYearPicker } from './month-year-picker';
-import { Textarea } from './ui/textarea';
-import { Sparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface EditorDashboardProps {
@@ -40,45 +36,25 @@ export default function EditorDashboard({
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteFile, setMinuteFile] = useState<File | null>(null);
   const [minuteTitle, setMinuteTitle] = useState('');
-  const [isGeneratingMinuteDesc, setIsGeneratingMinuteDesc] = useState(false);
   
   // Financial Statements Form State
   const [statementPeriod, setStatementPeriod] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [statementTitle, setStatementTitle] = useState('');
-  const [isGeneratingStatementDesc, setIsGeneratingStatementDesc] = useState(false);
 
-  const handleGenerateDesc = async (type: 'meetingMinutes' | 'financialStatement') => {
-    const file = type === 'meetingMinutes' ? minuteFile : statementFile;
-    if (!file) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Please select a file first.' });
-      return;
+  useEffect(() => {
+    if (minuteDate) {
+      setMinuteTitle(format(minuteDate, 'MMMM d yyyy \'Summery\''));
+    } else {
+      setMinuteTitle('');
     }
-    
-    if(type === 'meetingMinutes') setIsGeneratingMinuteDesc(true);
-    else setIsGeneratingStatementDesc(true);
+  }, [minuteDate]);
 
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(file);
-    fileReader.onload = async () => {
-        const content = fileReader.result as string;
-        const result = await generateDescriptionAction(type, content);
+  useEffect(() => {
+    const date = new Date(statementPeriod.year, statementPeriod.month - 1);
+    setStatementTitle(format(date, 'MMMM yyyy \'Financial Statement\''));
+  }, [statementPeriod]);
 
-        if (result.success && result.data) {
-          if (type === 'meetingMinutes') {
-            setMinuteTitle(result.data.title);
-          } else {
-            setStatementTitle(result.data.title);
-          }
-          toast({ title: 'Success', description: 'Description generated successfully.' });
-        } else {
-          toast({ variant: 'destructive', title: 'Error', description: result.error });
-        }
-        
-        if(type === 'meetingMinutes') setIsGeneratingMinuteDesc(false);
-        else setIsGeneratingStatementDesc(false);
-    }
-  };
 
   const handleMinuteSubmit = (formData: FormData) => {
       if (!minuteDate || !minuteFile || !minuteTitle) {
@@ -95,7 +71,6 @@ export default function EditorDashboard({
             toast({ title: 'Success', description: 'Meeting minute added.' });
             setMinuteDate(undefined);
             setMinuteFile(null);
-            setMinuteTitle('');
             // Reset file input
             const fileInput = document.getElementById('minute-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
@@ -121,7 +96,6 @@ export default function EditorDashboard({
         if (result?.success) {
             toast({ title: 'Success', description: 'Financial statement added.' });
             setStatementFile(null);
-            setStatementTitle('');
              // Reset file input
             const fileInput = document.getElementById('statement-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
@@ -131,126 +105,123 @@ export default function EditorDashboard({
         }
     });
   }
+  
+  const GlassCard = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+    <div className={`bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg ${className}`}>
+      {children}
+    </div>
+  );
 
   return (
     <Tabs defaultValue="minutes">
-      <TabsList>
-        <TabsTrigger value="minutes">Meeting Minutes</TabsTrigger>
-        <TabsTrigger value="statements">Financial Statements</TabsTrigger>
-      </TabsList>
+      <div className="flex justify-center mb-6">
+        <TabsList className="bg-white/20 border border-white/20">
+            <TabsTrigger value="minutes" className="data-[state=active]:bg-white/20">Meeting Minutes</TabsTrigger>
+            <TabsTrigger value="statements" className="data-[state=active]:bg-white/20">Financial Statements</TabsTrigger>
+        </TabsList>
+      </div>
       
       <TabsContent value="minutes">
         <div className="grid gap-8 md:grid-cols-2">
-            <Card>
+            <GlassCard>
                 <CardHeader>
-                    <CardTitle>Upload Meeting Minutes</CardTitle>
-                    <CardDescription>Upload a PDF of the meeting minutes.</CardDescription>
+                    <CardTitle className="text-white">Upload Meeting Minutes</CardTitle>
+                    <CardDescription className="text-gray-200">Upload a PDF of the meeting minutes.</CardDescription>
                 </CardHeader>
                 <form action={handleMinuteSubmit}>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Meeting Date</Label>
+                        <Label className="text-gray-200">Meeting Date</Label>
                         <DatePicker date={minuteDate} setDate={setMinuteDate} />
                     </div>
+                     {minuteTitle && <p className="text-sm text-gray-300 italic">Title: "{minuteTitle}"</p>}
                     <div className="space-y-2">
-                        <Label htmlFor="minute-file">PDF File</Label>
-                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} />
-                    </div>
-                    <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('meetingMinutes')} disabled={!minuteFile || isGeneratingMinuteDesc}>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        {isGeneratingMinuteDesc ? 'Generating...' : 'Generate Title'}
-                    </Button>
-                    <div className="space-y-2">
-                        <Label htmlFor="minute-title">Title</Label>
-                        <Input id="minute-title" name="title" value={minuteTitle} onChange={(e) => setMinuteTitle(e.target.value)} placeholder="AI-generated title..." />
+                        <Label htmlFor="minute-file" className="text-gray-200">PDF File</Label>
+                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} className="text-gray-200 file:text-gray-300"/>
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save Minute"}</Button>
+                    <Button type="submit" disabled={isPending || !minuteFile || !minuteDate} className="bg-white/20 hover:bg-white/30 text-white">{isPending ? "Saving..." : "Save Minute"}</Button>
                 </CardFooter>
                 </form>
-            </Card>
-            <Card>
+            </GlassCard>
+            <GlassCard>
                 <CardHeader>
-                    <CardTitle>Existing Meeting Minutes</CardTitle>
+                    <CardTitle className="text-white">Existing Meeting Minutes</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Title</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {initialMeetingMinutes.map((minute) => (
-                                <TableRow key={minute.id}>
-                                    <TableCell>{format(new Date(minute.date), 'PPP')}</TableCell>
-                                    <TableCell>{minute.title}</TableCell>
+                    <div className="max-h-96 overflow-y-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-white/20">
+                                    <TableHead className="text-gray-200">Date</TableHead>
+                                    <TableHead className="text-gray-200">Title</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {initialMeetingMinutes.map((minute) => (
+                                    <TableRow key={minute.id} className="border-white/20">
+                                        <TableCell className="text-gray-300">{format(new Date(minute.date), 'PPP')}</TableCell>
+                                        <TableCell className="text-gray-300">{minute.title}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
-            </Card>
+            </GlassCard>
         </div>
       </TabsContent>
 
       <TabsContent value="statements">
       <div className="grid gap-8 md:grid-cols-2">
-            <Card>
+            <GlassCard>
                 <CardHeader>
-                    <CardTitle>Upload Financial Statement</CardTitle>
-                    <CardDescription>Upload an image of the financial statement.</CardDescription>
+                    <CardTitle className="text-white">Upload Financial Statement</CardTitle>
+                    <CardDescription className="text-gray-200">Upload an image of the financial statement.</CardDescription>
                 </CardHeader>
                  <form action={handleStatementSubmit}>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Statement Period</Label>
+                        <Label className="text-gray-200">Statement Period</Label>
                         <MonthYearPicker period={statementPeriod} onPeriodChange={setStatementPeriod} />
                     </div>
+                    {statementTitle && <p className="text-sm text-gray-300 italic">Title: "{statementTitle}"</p>}
                     <div className="space-y-2">
-                        <Label htmlFor="statement-file">Image File</Label>
-                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} />
-                    </div>
-                     <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('financialStatement')} disabled={!statementFile || isGeneratingStatementDesc}>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        {isGeneratingStatementDesc ? 'Generating...' : 'Generate Title'}
-                    </Button>
-                    <div className="space-y-2">
-                        <Label htmlFor="statement-title">Title</Label>
-                        <Input id="statement-title" name="title" value={statementTitle} onChange={(e) => setStatementTitle(e.target.value)} placeholder="AI-generated title..."/>
+                        <Label htmlFor="statement-file" className="text-gray-200">Image File</Label>
+                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} className="text-gray-200 file:text-gray-300"/>
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending}>{isPending ? "Saving..." : "Save Statement"}</Button>
+                    <Button type="submit" disabled={isPending || !statementFile} className="bg-white/20 hover:bg-white/30 text-white">{isPending ? "Saving..." : "Save Statement"}</Button>
                 </CardFooter>
                 </form>
-            </Card>
-            <Card>
+            </GlassCard>
+            <GlassCard>
                 <CardHeader>
-                    <CardTitle>Existing Financial Statements</CardTitle>
+                    <CardTitle className="text-white">Existing Financial Statements</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Period</TableHead>
-                                <TableHead>Title</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {initialFinancialStatements.map((statement) => (
-                                <TableRow key={statement.period}>
-                                    <TableCell>{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
-
-                                    <TableCell>{statement.title}</TableCell>
+                    <div className="max-h-96 overflow-y-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="border-white/20">
+                                    <TableHead className="text-gray-200">Period</TableHead>
+                                    <TableHead className="text-gray-200">Title</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {initialFinancialStatements.map((statement) => (
+                                    <TableRow key={statement.period} className="border-white/20">
+                                        <TableCell className="text-gray-300">{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
+                                        <TableCell className="text-gray-300">{statement.title}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
-            </Card>
+            </GlassCard>
         </div>
       </TabsContent>
     </Tabs>
