@@ -86,7 +86,7 @@ export default function PublicDashboard({
               <SelectContent>
                 {financialStatements.map((statement) => (
                   <SelectItem key={statement.period} value={statement.period}>
-                    {format(new Date(statement.period + '-02'), 'MMMM yyyy')}
+                    {format(new Date(`${statement.period}-02`), 'MMMM yyyy')}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -96,16 +96,21 @@ export default function PublicDashboard({
       </div>
 
       <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
-        <DialogContent>
+        <DialogContent className="max-w-4xl h-[90vh]">
           <DialogHeader>
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
             <DialogDescription>{selectedMinute?.summary}</DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="py-4 flex-1 flex flex-col">
+            <p className="text-sm text-muted-foreground mb-4">
               Meeting held on {selectedMinute?.date ? format(new Date(selectedMinute.date), 'PPP') : ''}.
             </p>
-            <Button asChild className="mt-4">
+            {selectedMinute?.url && (
+                <div className="flex-1 w-full h-full">
+                    <iframe src={selectedMinute.url} className="w-full h-full border rounded-md" title={selectedMinute.title} />
+                </div>
+            )}
+            <Button asChild className="mt-4 w-fit">
               <a href={selectedMinute?.url} target="_blank" rel="noopener noreferrer">Download PDF</a>
             </Button>
           </div>
