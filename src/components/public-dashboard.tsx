@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -26,12 +27,13 @@ export default function PublicDashboard({
   financialStatements,
 }: PublicDashboardProps) {
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
+  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
 
   const handleMinuteSelect = (id: string) => {
     if (!id) return;
     const minute = meetingMinutes.find(m => m.id === id);
     if (minute) {
-      window.open(minute.url, '_blank');
+      setSelectedMinute(minute);
     }
   };
   
@@ -93,6 +95,7 @@ export default function PublicDashboard({
         </Card>
       </div>
       
+      {/* Dialog for Financial Statements (Images) */}
       <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
@@ -112,6 +115,24 @@ export default function PublicDashboard({
                       target.srcset = '';
                     }}
                 />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog for Meeting Minutes (PDFs) */}
+      <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
+        <DialogContent className="max-w-4xl h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{selectedMinute?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="h-full w-full py-4">
+            {selectedMinute?.url && (
+              <iframe
+                src={selectedMinute.url}
+                className="h-full w-full"
+                title={selectedMinute.title}
+              />
             )}
           </div>
         </DialogContent>
