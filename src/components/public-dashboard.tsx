@@ -51,7 +51,7 @@ export default function PublicDashboard({
         <Card>
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
-              <FileText className="h-6 w-6" /> Meeting Minutes
+              <FileText className="h-6 w-6" /> Minutes of Meeting
             </CardTitle>
             <CardDescription>Select a date to view the meeting minutes.</CardDescription>
           </CardHeader>
@@ -96,7 +96,7 @@ export default function PublicDashboard({
       </div>
 
       <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
-        <DialogContent className="max-w-4xl h-[90vh]">
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>{selectedMinute?.title}</DialogTitle>
             <DialogDescription>{selectedMinute?.summary}</DialogDescription>

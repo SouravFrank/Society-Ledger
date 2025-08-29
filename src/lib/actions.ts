@@ -9,6 +9,7 @@ import path from 'path';
 
 import { generateDocumentDescription } from '@/ai/flows/generate-document-description';
 import { addFinancialStatement, addMeetingMinute } from './db';
+import { MeetingMinute } from './types';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -78,12 +79,12 @@ export async function addMeetingMinuteAction(data: FormData) {
 
     const { date, title, summary, file } = parsed.data;
     
-    const resourcesDir = path.join(process.cwd(), 'src', 'resources');
+    const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'moms');
     await fs.mkdir(resourcesDir, { recursive: true });
     
     const fileName = `meeting-minute-${date}.${file.name.split('.').pop()}`;
     const filePath = path.join(resourcesDir, fileName);
-    const fileUrl = `/resources/${fileName}`;
+    const fileUrl = `/resources/moms/${fileName}`;
     
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
@@ -114,12 +115,12 @@ export async function addFinancialStatementAction(data: FormData) {
     
     const { period, title, summary, file } = parsed.data;
 
-    const resourcesDir = path.join(process.cwd(), 'src', 'resources');
+    const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'monthlyStatements');
     await fs.mkdir(resourcesDir, { recursive: true });
 
     const fileName = `financial-statement-${period}.${file.name.split('.').pop()}`;
     const filePath = path.join(resourcesDir, fileName);
-    const fileUrl = `/resources/${fileName}`;
+    const fileUrl = `/resources/monthlyStatements/${fileName}`;
 
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
