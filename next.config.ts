@@ -39,14 +39,6 @@ const nextConfig: NextConfig = {
 
     return config;
   },
-  async rewrites() {
-    return [
-      {
-        source: '/resources/:path*',
-        destination: '/api/resources/:path*',
-      },
-    ]
-  },
 };
 
 export default nextConfig;

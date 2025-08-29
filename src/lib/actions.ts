@@ -77,11 +77,11 @@ export async function addMeetingMinuteAction(formData: FormData) {
 
     const { date, title, file } = parsed.data;
     
-    const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'moms');
-    await fs.mkdir(resourcesDir, { recursive: true });
+    const publicDir = path.join(process.cwd(), 'public', 'resources', 'moms');
+    await fs.mkdir(publicDir, { recursive: true });
     
     const fileName = `MOM_${date.substring(5).replace('-', '_')}.${file.name.split('.').pop()}`;
-    const filePath = path.join(resourcesDir, fileName);
+    const filePath = path.join(publicDir, fileName);
     
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
@@ -118,11 +118,11 @@ export async function addFinancialStatementAction(formData: FormData) {
     
     const { period, title, summary, file } = parsed.data;
 
-    const resourcesDir = path.join(process.cwd(), 'src', 'resources', 'monthlyStatements');
-    await fs.mkdir(resourcesDir, { recursive: true });
+    const publicDir = path.join(process.cwd(), 'public', 'resources', 'monthlyStatements');
+    await fs.mkdir(publicDir, { recursive: true });
 
     const fileName = `financial-statement-${period}.${file.name.split('.').pop()}`;
-    const filePath = path.join(resourcesDir, fileName);
+    const filePath = path.join(publicDir, fileName);
 
     await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
 
