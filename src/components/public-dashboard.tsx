@@ -29,24 +29,8 @@ export default function PublicDashboard({
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
 
-  const handleMinuteSelect = (id: string) => {
-    if (!id) return;
-    const minute = meetingMinutes.find(m => m.id === id);
-    if (minute) {
-      setSelectedMinute(minute);
-    }
-  };
-  
-  const handleStatementSelect = (period: string) => {
-    if (!period) return;
-    const statement = financialStatements.find(s => s.period === period);
-    if (statement) {
-      setSelectedStatement(statement);
-    }
-  }
-
-  const getEmbedUrl = (url: string) => {
-    // Check if it's a Google Drive URL and construct the preview URL
+  const getViewerUrl = (url: string) => {
+    // Check if it's a Google Drive URL
     if (url.includes('drive.google.com')) {
       const match = url.match(/file\/d\/(.*?)\//);
       if (match && match[1]) {
@@ -54,27 +38,27 @@ export default function PublicDashboard({
         return `https://drive.google.com/file/d/${fileId}/preview`;
       }
     }
-    // For local files, construct the absolute URL for the viewer
+    
+    // For local/other URLs, use Google Docs Viewer
     const isAbsoluteUrl = url.startsWith('http://') || url.startsWith('https://');
     const fullUrl = isAbsoluteUrl ? url : new URL(url, window.location.origin).href;
-    // For non-Google Drive links, use the Google Docs Viewer as a fallback
     return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
   };
 
   const isGoogleDriveUrl = (url: string) => url.includes('drive.google.com');
 
   return (
-    <div className="container py-8">
-      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
-        <Card>
+    <div className="container mx-auto px-4 py-8 md:px-6">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
               <FileText className="h-6 w-6" /> Meeting Minutes
             </CardTitle>
             <CardDescription>Select a date to view the meeting minutes.</CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center">
-            <Select onValueChange={handleMinuteSelect}>
+          <CardContent className="flex flex-grow items-center justify-center p-6">
+            <Select onValueChange={(id) => setSelectedMinute(meetingMinutes.find(m => m.id === id) || null)}>
               <SelectTrigger className="w-full max-w-sm">
                 <SelectValue placeholder="Select a meeting date" />
               </SelectTrigger>
@@ -89,15 +73,15 @@ export default function PublicDashboard({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="flex flex-col">
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
                 <ImageIcon className="h-6 w-6" /> Financial Statements
             </CardTitle>
             <CardDescription>Select a period to view the financial statement.</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center gap-4">
-             <Select onValueChange={handleStatementSelect}>
+          <CardContent className="flex flex-grow items-center justify-center p-6">
+             <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
               <SelectTrigger className="w-full max-w-sm">
                 <SelectValue placeholder="Select a statement period" />
               </SelectTrigger>
@@ -113,56 +97,64 @@ export default function PublicDashboard({
         </Card>
       </div>
       
-      {/* Dialog for Financial Statements (Images) */}
-      <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
-        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col">
+      <Dialog open={!!selectedStatement || !!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) { setSelectedStatement(null); setSelectedMinute(null); } }}>
+        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
           <DialogHeader>
-            <DialogTitle>{selectedStatement?.title}</DialogTitle>
+            <DialogTitle>{selectedStatement?.title || selectedMinute?.title}</DialogTitle>
           </DialogHeader>
-          <div className="flex-1 w-full py-4">
-            {selectedStatement?.url && (
-              isGoogleDriveUrl(selectedStatement.url) ? (
-                <iframe
-                  key={selectedStatement.period}
-                  src={getEmbedUrl(selectedStatement.url)}
-                  className="w-full h-full border-0 rounded-md"
-                  title={selectedStatement.title}
-                />
-              ) : (
-                <div className="relative w-full h-full">
-                  <Image 
-                      src={selectedStatement.url} 
-                      alt={selectedStatement.title} 
-                      fill
-                      className="object-contain"
-                      data-ai-hint="financial document"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
-                        target.srcset = '';
-                      }}
-                  />
-                </div>
-              )
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+          <div className="flex-1 mt-4 bg-white">
+            {(selectedStatement?.url || selectedMinute?.url) && (
+              (() => {
+                const item = selectedStatement || selectedMinute;
+                if (!item) return null;
 
-      {/* Dialog for Meeting Minutes (PDFs) */}
-      <Dialog open={!!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) setSelectedMinute(null) }}>
-        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>{selectedMinute?.title}</DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 w-full py-4">
-            {selectedMinute?.url && (
-              <iframe 
-                key={selectedMinute.id}
-                src={getEmbedUrl(selectedMinute.url)} 
-                className="w-full h-full border-0 rounded-md"
-                title={selectedMinute.title}
-                />
+                const isDriveUrl = isGoogleDriveUrl(item.url);
+                const isPdf = item.url.endsWith('.pdf') || (selectedMinute !== null);
+
+                if ((isDriveUrl || isPdf) && !selectedStatement) {
+                   return (
+                      <iframe
+                        key={item.id || item.period}
+                        src={getViewerUrl(item.url)}
+                        className="w-full h-full border-0 rounded-md"
+                        title={item.title}
+                      />
+                   );
+                }
+                
+                if (isDriveUrl && selectedStatement) {
+                    return (
+                        <iframe
+                            key={item.period}
+                            src={getViewerUrl(item.url)}
+                            className="w-full h-full border-0 rounded-md"
+                            title={item.title}
+                        />
+                    );
+                }
+
+                // Fallback for local images
+                if (selectedStatement) {
+                    return (
+                         <div className="relative w-full h-full">
+                            <Image 
+                                src={selectedStatement.url} 
+                                alt={selectedStatement.title} 
+                                fill
+                                className="object-contain"
+                                data-ai-hint="financial document"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
+                                  target.srcset = '';
+                                }}
+                            />
+                        </div>
+                    )
+                }
+                
+                return null;
+              })()
             )}
           </div>
         </DialogContent>
