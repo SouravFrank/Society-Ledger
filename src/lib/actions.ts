@@ -100,7 +100,6 @@ export async function addMeetingMinuteAction(formData: FormData) {
 const statementSchema = z.object({
   period: z.string(),
   title: z.string(),
-  summary: z.string(),
   file: fileSchema,
 });
 
@@ -108,7 +107,6 @@ export async function addFinancialStatementAction(formData: FormData) {
     const parsed = statementSchema.safeParse({
         period: formData.get('period'),
         title: formData.get('title'),
-        summary: formData.get('summary'),
         file: formData.get('file'),
     });
 
@@ -116,7 +114,7 @@ export async function addFinancialStatementAction(formData: FormData) {
         return { error: 'Invalid data provided for financial statement.'};
     }
     
-    const { period, title, summary, file } = parsed.data;
+    const { period, title, file } = parsed.data;
 
     const publicDir = path.join(process.cwd(), 'public', 'resources', 'monthlyStatements');
     await fs.mkdir(publicDir, { recursive: true });
@@ -129,7 +127,6 @@ export async function addFinancialStatementAction(formData: FormData) {
     await addFinancialStatement({ 
         period, 
         title, 
-        summary, 
         url: `/resources/monthlyStatements/${fileName}` 
     });
 

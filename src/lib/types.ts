@@ -9,5 +9,4 @@ export type FinancialStatement = {
   period: string; // YYYY-MM
   url: string;
   title: string;
-  summary: string;
 };

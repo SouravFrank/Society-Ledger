@@ -13,8 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { FileText, ImageIcon } from 'lucide-react';
 
 interface PublicDashboardProps {
@@ -26,7 +25,6 @@ export default function PublicDashboard({
   meetingMinutes,
   financialStatements,
 }: PublicDashboardProps) {
-  const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
 
   const handleMinuteSelect = (id: string) => {
@@ -99,7 +97,6 @@ export default function PublicDashboard({
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>{selectedStatement?.title}</DialogTitle>
-            <DialogDescription>{selectedStatement?.summary}</DialogDescription>
           </DialogHeader>
           <div className="py-4 relative aspect-[8/11] w-full">
             {selectedStatement?.url && (

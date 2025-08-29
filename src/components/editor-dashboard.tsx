@@ -46,7 +46,6 @@ export default function EditorDashboard({
   const [statementPeriod, setStatementPeriod] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
   const [statementFile, setStatementFile] = useState<File | null>(null);
   const [statementTitle, setStatementTitle] = useState('');
-  const [statementSummary, setStatementSummary] = useState('');
   const [isGeneratingStatementDesc, setIsGeneratingStatementDesc] = useState(false);
 
   const handleGenerateDesc = async (type: 'meetingMinutes' | 'financialStatement') => {
@@ -70,7 +69,6 @@ export default function EditorDashboard({
             setMinuteTitle(result.data.title);
           } else {
             setStatementTitle(result.data.title);
-            if(result.data.summary) setStatementSummary(result.data.summary);
           }
           toast({ title: 'Success', description: 'Description generated successfully.' });
         } else {
@@ -109,14 +107,13 @@ export default function EditorDashboard({
   }
 
   const handleStatementSubmit = (formData: FormData) => {
-    if (!statementFile || !statementTitle || !statementSummary) {
+    if (!statementFile || !statementTitle) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the financial statement.' });
         return;
     }
     
     formData.set('period', `${statementPeriod.year}-${String(statementPeriod.month).padStart(2, '0')}`);
     formData.set('title', statementTitle);
-    formData.set('summary', statementSummary);
     formData.set('file', statementFile);
     
     startTransition(async () => {
@@ -125,7 +122,6 @@ export default function EditorDashboard({
             toast({ title: 'Success', description: 'Financial statement added.' });
             setStatementFile(null);
             setStatementTitle('');
-            setStatementSummary('');
              // Reset file input
             const fileInput = document.getElementById('statement-file') as HTMLInputElement;
             if (fileInput) fileInput.value = '';
@@ -219,15 +215,11 @@ export default function EditorDashboard({
                     </div>
                      <Button type="button" variant="outline" size="sm" onClick={() => handleGenerateDesc('financialStatement')} disabled={!statementFile || isGeneratingStatementDesc}>
                         <Sparkles className="mr-2 h-4 w-4" />
-                        {isGeneratingStatementDesc ? 'Generating...' : 'Generate Title & Summary'}
+                        {isGeneratingStatementDesc ? 'Generating...' : 'Generate Title'}
                     </Button>
                     <div className="space-y-2">
                         <Label htmlFor="statement-title">Title</Label>
                         <Input id="statement-title" name="title" value={statementTitle} onChange={(e) => setStatementTitle(e.target.value)} placeholder="AI-generated title..."/>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="statement-summary">Summary</Label>
-                        <Textarea id="statement-summary" name="summary" value={statementSummary} onChange={(e) => setStatementSummary(e.target.value)} placeholder="AI-generated summary..." />
                     </div>
                 </CardContent>
                 <CardFooter>

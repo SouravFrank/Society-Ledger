@@ -22,7 +22,7 @@ export const getFinancialStatements = async (): Promise<FinancialStatement[]> =>
   return Promise.resolve(sortedStatements);
 };
 
-export const addFinancialStatement = async (statement: FinancialStatement): Promise<void> => {
+export const addFinancialStatement = async (statement: Omit<FinancialStatement, 'summary'>): Promise<void> => {
   // This is a mock implementation. In a real app, you would add to a database.
   console.log('Adding financial statement:', statement);
   // Note: This won't persist because it's an in-memory array.
