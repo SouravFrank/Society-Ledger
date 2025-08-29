@@ -65,7 +65,7 @@ export default function PublicDashboard({
               <SelectContent>
                 {meetingMinutes.map((minute) => (
                   <SelectItem key={minute.id} value={minute.id}>
-                    {minute.title}
+                    {minute.date && format(new Date(minute.date), 'MMMM d, yyyy')}
                   </SelectItem>
                 ))}
               </SelectContent>
