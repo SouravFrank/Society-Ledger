@@ -2,16 +2,16 @@ import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 
 export const meetingMinutes: MeetingMinute[] = [
   {
-    id: '2024-08-21',
-    date: '2024-08-21',
+    id: '2025-08-21',
+    date: '2025-08-21',
     url: 'https://drive.google.com/file/d/1MpzE9835NrbJG7I7wToOvPrV_lRYHIp1/preview',
-    title: 'August 21 2024 Summery',
+    title: 'August 21 2025 Summery',
   },
   {
-    id: '2024-08-28',
-    date: '2024-08-28',
+    id: '2025-08-28',
+    date: '2025-08-28',
     url: 'https://drive.google.com/file/d/1bu6EA6YUYCU_gVeI6q-_zvzXTmn1la0K/preview',
-    title: 'August 28 2024 Summery',
+    title: 'August 28 2025 Summery',
   },
   {
     id: '2024-11-24',
