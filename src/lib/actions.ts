@@ -4,8 +4,6 @@ import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs/promises';
-import path from 'path';
 
 import { addFinancialStatement, addMeetingMinute } from './db';
 import { MeetingMinute } from './types';
@@ -42,39 +40,29 @@ export async function logoutAction() {
   redirect('/shibalik-b/login');
 }
 
-const fileSchema = z.custom<File>(val => val instanceof File, "Please upload a file");
-
 const minuteSchema = z.object({
   date: z.string(),
   title: z.string(),
-  file: fileSchema,
+  url: z.string().url({ message: 'Please enter a valid Google Drive URL.' }),
 });
 
 export async function addMeetingMinuteAction(formData: FormData) {
     const parsed = minuteSchema.safeParse({
       date: formData.get('date'),
       title: formData.get('title'),
-      file: formData.get('file'),
+      url: formData.get('url'),
     });
     
     if (!parsed.success) {
-        return { error: 'Invalid data provided for meeting minute.'};
+        return { error: parsed.error.errors[0].message || 'Invalid data provided for meeting minute.'};
     }
 
-    const { date, title, file } = parsed.data;
+    const { date, title, url } = parsed.data;
     
-    const publicDir = path.join(process.cwd(), 'public', 'resources', 'moms');
-    await fs.mkdir(publicDir, { recursive: true });
-    
-    const fileName = `MOM_${date.substring(5).replace('-', '_')}.${file.name.split('.').pop()}`;
-    const filePath = path.join(publicDir, fileName);
-    
-    await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
-
     const newMinute: Omit<MeetingMinute, 'id'> = {
         date,
         title,
-        url: `/resources/moms/${fileName}`,
+        url,
     };
     await addMeetingMinute(newMinute);
 
@@ -86,34 +74,26 @@ export async function addMeetingMinuteAction(formData: FormData) {
 const statementSchema = z.object({
   period: z.string(),
   title: z.string(),
-  file: fileSchema,
+  url: z.string().url({ message: 'Please enter a valid Google Drive URL.' }),
 });
 
 export async function addFinancialStatementAction(formData: FormData) {
     const parsed = statementSchema.safeParse({
         period: formData.get('period'),
         title: formData.get('title'),
-        file: formData.get('file'),
+        url: formData.get('url'),
     });
 
     if (!parsed.success) {
-        return { error: 'Invalid data provided for financial statement.'};
+        return { error: parsed.error.errors[0].message || 'Invalid data provided for financial statement.'};
     }
     
-    const { period, title, file } = parsed.data;
-
-    const publicDir = path.join(process.cwd(), 'public', 'resources', 'monthlyStatements');
-    await fs.mkdir(publicDir, { recursive: true });
-
-    const fileName = `financial-statement-${period}.${file.name.split('.').pop()}`;
-    const filePath = path.join(publicDir, fileName);
-
-    await fs.writeFile(filePath, Buffer.from(await file.arrayBuffer()));
+    const { period, title, url } = parsed.data;
 
     await addFinancialStatement({ 
         period, 
         title, 
-        url: `/resources/monthlyStatements/${fileName}` 
+        url,
     });
 
     revalidatePath('/shibalik-b/editor');

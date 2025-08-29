@@ -33,11 +33,11 @@ export default function EditorDashboard({
   const router = useRouter();
 
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
-  const [minuteFile, setMinuteFile] = useState<File | null>(null);
+  const [minuteUrl, setMinuteUrl] = useState<string>('');
   const [minuteTitle, setMinuteTitle] = useState('');
   
   const [statementPeriod, setStatementPeriod] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
-  const [statementFile, setStatementFile] = useState<File | null>(null);
+  const [statementUrl, setStatementUrl] = useState<string>('');
   const [statementTitle, setStatementTitle] = useState('');
 
   useEffect(() => {
@@ -54,22 +54,20 @@ export default function EditorDashboard({
   }, [statementPeriod]);
 
   const handleMinuteSubmit = (formData: FormData) => {
-      if (!minuteDate || !minuteFile || !minuteTitle) {
-          toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the meeting minute.' });
+      if (!minuteDate || !minuteUrl || !minuteTitle) {
+          toast({ variant: 'destructive', title: 'Error', description: 'Please provide a date and a valid Google Drive link.' });
           return;
       }
       formData.set('date', format(minuteDate, 'yyyy-MM-dd'));
       formData.set('title', minuteTitle);
-      formData.set('file', minuteFile);
+      formData.set('url', minuteUrl);
       
       startTransition(async () => {
         const result = await addMeetingMinuteAction(formData);
         if (result?.success) {
             toast({ title: 'Success', description: 'Meeting minute added.' });
             setMinuteDate(undefined);
-            setMinuteFile(null);
-            const fileInput = document.getElementById('minute-file') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
+            setMinuteUrl('');
             router.refresh();
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add meeting minute.' });
@@ -78,22 +76,20 @@ export default function EditorDashboard({
   }
 
   const handleStatementSubmit = (formData: FormData) => {
-    if (!statementFile || !statementTitle) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields for the financial statement.' });
+    if (!statementUrl || !statementTitle) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please provide a period and a valid Google Drive link.' });
         return;
     }
     
     formData.set('period', `${statementPeriod.year}-${String(statementPeriod.month).padStart(2, '0')}`);
     formData.set('title', statementTitle);
-    formData.set('file', statementFile);
+    formData.set('url', statementUrl);
     
     startTransition(async () => {
         const result = await addFinancialStatementAction(formData);
         if (result?.success) {
             toast({ title: 'Success', description: 'Financial statement added.' });
-            setStatementFile(null);
-            const fileInput = document.getElementById('statement-file') as HTMLInputElement;
-            if (fileInput) fileInput.value = '';
+            setStatementUrl('');
             router.refresh();
         } else {
             toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add financial statement.' });
@@ -106,7 +102,7 @@ export default function EditorDashboard({
       <div className="flex justify-start mb-6">
         <TabsList>
             <TabsTrigger value="minutes">Meeting Minutes</TabsTrigger>
-            <TabsTrigger value="statements">Financial Statements</TabsTrigger>
+            <TabsTrigger value="statements">Financial Statements</TabsTabsTrigger>
         </TabsList>
       </div>
       
@@ -115,7 +111,7 @@ export default function EditorDashboard({
             <Card>
                 <CardHeader>
                     <CardTitle>Upload Meeting Minutes</CardTitle>
-                    <CardDescription>Upload a PDF of the meeting minutes.</CardDescription>
+                    <CardDescription>Enter the Google Drive link for the meeting minutes PDF.</CardDescription>
                 </CardHeader>
                 <form action={handleMinuteSubmit}>
                 <CardContent className="space-y-6">
@@ -125,12 +121,12 @@ export default function EditorDashboard({
                          {minuteTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{minuteTitle}"</p>}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="minute-file">PDF File</Label>
-                        <Input id="minute-file" name="file" type="file" accept=".pdf" onChange={(e) => setMinuteFile(e.target.files?.[0] || null)} />
+                        <Label htmlFor="minute-url">Google Drive Link</Label>
+                        <Input id="minute-url" name="url" type="text" placeholder="https://drive.google.com/file/d/..." value={minuteUrl} onChange={(e) => setMinuteUrl(e.target.value)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !minuteFile || !minuteDate}>{isPending ? "Saving..." : "Save Minute"}</Button>
+                    <Button type="submit" disabled={isPending || !minuteUrl || !minuteDate}>{isPending ? "Saving..." : "Save Minute"}</Button>
                 </CardFooter>
                 </form>
             </Card>
@@ -167,7 +163,7 @@ export default function EditorDashboard({
             <Card>
                 <CardHeader>
                     <CardTitle>Upload Financial Statement</CardTitle>
-                    <CardDescription>Upload an image of the financial statement.</CardDescription>
+                    <CardDescription>Enter the Google Drive link for the financial statement image.</CardDescription>
                 </CardHeader>
                  <form action={handleStatementSubmit}>
                 <CardContent className="space-y-6">
@@ -177,12 +173,12 @@ export default function EditorDashboard({
                          {statementTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{statementTitle}"</p>}
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="statement-file">Image File</Label>
-                        <Input id="statement-file" name="file" type="file" accept="image/*" onChange={(e) => setStatementFile(e.target.files?.[0] || null)} />
+                        <Label htmlFor="statement-url">Google Drive Link</Label>
+                        <Input id="statement-url" name="url" type="text" placeholder="https://drive.google.com/file/d/..." value={statementUrl} onChange={(e) => setStatementUrl(e.target.value)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !statementFile}>{isPending ? "Saving..." : "Save Statement"}</Button>
+                    <Button type="submit" disabled={isPending || !statementUrl}>{isPending ? "Saving..." : "Save Statement"}</Button>
                 </CardFooter>
                 </form>
             </Card>

@@ -30,19 +30,17 @@ export default function PublicDashboard({
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
 
   const getViewerUrl = (url: string) => {
-    // Check if it's a Google Drive URL
     if (url.includes('drive.google.com')) {
-      const match = url.match(/file\/d\/(.*?)\//);
-      if (match && match[1]) {
-        const fileId = match[1];
-        return `https://drive.google.com/file/d/${fileId}/preview`;
+      const isPreview = url.endsWith('/preview');
+      const finalUrl = isPreview ? url : url.replace('/view', '/preview').replace('?usp=sharing', '');
+      
+      const fileIdMatch = finalUrl.match(/file\/d\/(.*?)\//);
+      if (fileIdMatch && fileIdMatch[1]) {
+        return `https://drive.google.com/file/d/${fileIdMatch[1]}/preview`;
       }
     }
-
-    // For local/other URLs, use Google Docs Viewer
-    const isAbsoluteUrl = url.startsWith('http://') || url.startsWith('https://');
-    const fullUrl = isAbsoluteUrl ? url : new URL(url, window.location.origin).href;
-    return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+    // Fallback for non-Google Drive URLs, though the app now expects them.
+    return `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
   };
 
   const isGoogleDriveUrl = (url: string) => url.includes('drive.google.com');
@@ -107,53 +105,17 @@ export default function PublicDashboard({
               (() => {
                 const item = selectedStatement || selectedMinute;
                 if (!item) return null;
+                
+                const viewerUrl = getViewerUrl(item.url);
 
-                const isDriveUrl = isGoogleDriveUrl(item.url);
-                const isPdf = item.url.endsWith('.pdf') || (selectedMinute !== null);
-
-                if ((isDriveUrl || isPdf) && !selectedStatement) {
-                  return (
-                    <iframe
-                      key={item.id || item.period}
-                      src={getViewerUrl(item.url)}
-                      className="w-full h-full border-0 rounded-md"
-                      title={item.title}
-                    />
-                  );
-                }
-
-                if (isDriveUrl && selectedStatement) {
-                  return (
-                    <iframe
-                      key={item?.period || item.title}
-                      src={getViewerUrl(item.url)}
-                      className="w-full h-full border-0 rounded-md"
-                      title={item.title}
-                    />
-                  );
-                }
-
-                // Fallback for local images
-                if (selectedStatement) {
-                  return (
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={selectedStatement.url}
-                        alt={selectedStatement.title}
-                        fill
-                        className="object-contain"
-                        data-ai-hint="financial document"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
-                          target.srcset = '';
-                        }}
-                      />
-                    </div>
-                  )
-                }
-
-                return null;
+                return (
+                  <iframe
+                    key={item.id || item.period}
+                    src={viewerUrl}
+                    className="w-full h-full border-0 rounded-md"
+                    title={item.title}
+                  />
+                );
               })()
             )}
           </div>
