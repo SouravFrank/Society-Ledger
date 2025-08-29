@@ -1,8 +1,6 @@
 import { Header } from '@/components/header';
 import PublicDashboard from '@/components/public-dashboard';
 import { getFinancialStatements, getMeetingMinutes } from '@/lib/db';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 
 export default async function Home() {
   const meetingMinutes = await getMeetingMinutes();
@@ -19,9 +17,6 @@ export default async function Home() {
           <p className="text-muted-foreground mb-6">
             Access official meeting minutes and financial statements.
           </p>
-          <Button asChild>
-            <Link href="/editor">Go to Editor</Link>
-          </Button>
         </div>
         <PublicDashboard
           meetingMinutes={meetingMinutes}
