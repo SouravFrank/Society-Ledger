@@ -102,7 +102,7 @@ export default function EditorDashboard({
       <div className="flex justify-start mb-6">
         <TabsList>
             <TabsTrigger value="minutes">Meeting Minutes</TabsTrigger>
-            <TabsTrigger value="statements">Financial Statements</TabsTabsTrigger>
+            <TabsTrigger value="statements">Financial Statements</TabsTrigger>
         </TabsList>
       </div>
       
