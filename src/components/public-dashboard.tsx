@@ -16,6 +16,7 @@ import {
 } from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { FileText, ImageIcon } from 'lucide-react';
+import { PdfViewer } from './pdf-viewer';
 
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
@@ -128,12 +129,7 @@ export default function PublicDashboard({
           </DialogHeader>
           <div className="h-full w-full py-4">
             {selectedMinute?.url && (
-              <iframe
-                key={selectedMinute.id}
-                src={selectedMinute.url}
-                className="h-full w-full"
-                title={selectedMinute.title}
-              />
+              <PdfViewer file={selectedMinute.url} />
             )}
           </div>
         </DialogContent>
