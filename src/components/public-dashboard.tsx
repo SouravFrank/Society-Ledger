@@ -129,6 +129,7 @@ export default function PublicDashboard({
           <div className="h-full w-full py-4">
             {selectedMinute?.url && (
               <iframe
+                key={selectedMinute.id}
                 src={selectedMinute.url}
                 className="h-full w-full"
                 title={selectedMinute.title}
