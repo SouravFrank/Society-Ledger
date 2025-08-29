@@ -44,9 +44,19 @@ export default function PublicDashboard({
     }
   }
 
-  // Construct the full URL for the Google Docs Viewer
+  // Construct the correct embed URL for the PDF viewer
   const getPdfViewerUrl = (pdfUrl: string) => {
-    // Check if the URL is absolute or a local path
+    // Check if it's a Google Drive URL
+    if (pdfUrl.includes('drive.google.com')) {
+      // Extract the file ID and construct the preview URL
+      const match = pdfUrl.match(/file\/d\/(.*?)\//);
+      if (match && match[1]) {
+        const fileId = match[1];
+        return `https://drive.google.com/file/d/${fileId}/preview`;
+      }
+    }
+    
+    // For other URLs (including local paths), use the Google Docs Viewer
     const isAbsoluteUrl = pdfUrl.startsWith('http://') || pdfUrl.startsWith('https://');
     const fullUrl = isAbsoluteUrl ? pdfUrl : new URL(pdfUrl, window.location.origin).href;
     return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
