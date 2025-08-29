@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -44,23 +45,23 @@ export default function PublicDashboard({
     }
   }
 
-  // Construct the correct embed URL for the PDF viewer
-  const getPdfViewerUrl = (pdfUrl: string) => {
-    // Check if it's a Google Drive URL
-    if (pdfUrl.includes('drive.google.com')) {
-      // Extract the file ID and construct the preview URL
-      const match = pdfUrl.match(/file\/d\/(.*?)\//);
+  // Check if it's a Google Drive URL and construct the preview URL
+  const getEmbedUrl = (url: string) => {
+    if (url.includes('drive.google.com')) {
+      const match = url.match(/file\/d\/(.*?)\//);
       if (match && match[1]) {
         const fileId = match[1];
         return `https://drive.google.com/file/d/${fileId}/preview`;
       }
     }
-    
-    // For other URLs (including local paths), use the Google Docs Viewer
-    const isAbsoluteUrl = pdfUrl.startsWith('http://') || pdfUrl.startsWith('https://');
-    const fullUrl = isAbsoluteUrl ? pdfUrl : new URL(pdfUrl, window.location.origin).href;
+    // For local files, construct the absolute URL for the viewer
+    const isAbsoluteUrl = url.startsWith('http://') || url.startsWith('https://');
+    const fullUrl = isAbsoluteUrl ? url : new URL(url, window.location.origin).href;
+    // For non-Google Drive links, use the Google Docs Viewer as a fallback
     return `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
   };
+
+  const isGoogleDriveUrl = (url: string) => url.includes('drive.google.com');
 
   return (
     <div className="container py-8">
@@ -114,24 +115,35 @@ export default function PublicDashboard({
       
       {/* Dialog for Financial Statements (Images) */}
       <Dialog open={!!selectedStatement} onOpenChange={(isOpen) => { if (!isOpen) setSelectedStatement(null) }}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl h-[90vh]">
           <DialogHeader>
             <DialogTitle>{selectedStatement?.title}</DialogTitle>
           </DialogHeader>
-          <div className="py-4 relative aspect-[8/11] w-full">
+          <div className="h-full w-full py-4">
             {selectedStatement?.url && (
-                <Image 
-                    src={selectedStatement.url} 
-                    alt={selectedStatement.title} 
-                    fill
-                    className="object-contain"
-                    data-ai-hint="financial document"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
-                      target.srcset = '';
-                    }}
+              isGoogleDriveUrl(selectedStatement.url) ? (
+                <iframe
+                  key={selectedStatement.period}
+                  src={getEmbedUrl(selectedStatement.url)}
+                  className="w-full h-full"
+                  title={selectedStatement.title}
                 />
+              ) : (
+                <div className="relative aspect-[8/11] w-full h-full">
+                  <Image 
+                      src={selectedStatement.url} 
+                      alt={selectedStatement.title} 
+                      fill
+                      className="object-contain"
+                      data-ai-hint="financial document"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://placehold.co/800x1100?text=Image+Not+Found';
+                        target.srcset = '';
+                      }}
+                  />
+                </div>
+              )
             )}
           </div>
         </DialogContent>
@@ -147,7 +159,7 @@ export default function PublicDashboard({
             {selectedMinute?.url && (
               <iframe 
                 key={selectedMinute.id}
-                src={getPdfViewerUrl(selectedMinute.url)} 
+                src={getEmbedUrl(selectedMinute.url)} 
                 className="w-full h-full"
                 title={selectedMinute.title}
                 />

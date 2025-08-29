@@ -24,22 +24,22 @@ export const meetingMinutes: MeetingMinute[] = [
 export const financialStatements: FinancialStatement[] = [
   {
     period: '2025-07',
-    url: '/resources/monthlyStatements/07_25.jpeg',
+    url: 'https://drive.google.com/file/d/154F2OeVvB1EEPU-pEtdDV1hEgS4_BVHu/preview',
     title: 'July 2025 Financial Statement'
   },
   {
     period: '2025-06',
-    url: '/resources/monthlyStatements/financial-statement-2024-08.png',
+    url: 'https://drive.google.com/file/d/1zIkNm5b4RSSkhm7WyiCoJGPeGnYmQv2w/preview',
     title: 'June 2025 Financial Statement'
   },
   {
     period: '2025-05',
-    url: '/resources/monthlyStatements/07_25.jpeg',
+    url: 'https://drive.google.com/file/d/11AkU18cXxPz9otmBDDHts2ADOeTJKP3C/preview',
     title: 'May 2025 Financial Statement'
   },
   {
     period: '2025-04',
-    url: '/resources/monthlyStatements/financial-statement-2024-08.png',
+    url: 'https://drive.google.com/file/d/1W_Pj99czeXtjRzn7gnJmo4SbB6QE0dU0/preview',
     title: 'April 2025 Financial Statement'
   },
   {
