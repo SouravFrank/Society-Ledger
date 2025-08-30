@@ -1,8 +1,15 @@
-import type {NextConfig} from 'next';
-import path from 'path';
+import type { NextConfig } from 'next';
+
+const isGithubPages = process.env.GITHUB_PAGES === 'true';
+// Replace with your GitHub repo name (exactly as the repo)
+const repo = 'Society-Ledger';
 
 const nextConfig: NextConfig = {
   output: 'export',
+  reactStrictMode: true,
+  basePath: isGithubPages ? `/${repo}` : '',
+  assetPrefix: isGithubPages ? `/${repo}/` : '',
+  trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
   },
