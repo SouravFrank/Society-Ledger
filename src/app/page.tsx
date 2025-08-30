@@ -32,7 +32,7 @@ export default function HomePage() {
               Society Ledger
             </h1>
             <p className="text-muted-foreground">
-              Loading community documents...
+              Loading Shibalik Apartment Block B documents...
             </p>
           </div>
         </div>
