@@ -23,6 +23,11 @@ export const meetingMinutes: MeetingMinute[] = [
 
 export const financialStatements: FinancialStatement[] = [
   {
+    period: '2025-08',
+    url: 'https://drive.google.com/file/d/1vh112uTHio9X7CzHmjyhEFXNBZluolrT/preview',
+    title: 'August 2025 Financial Statement'
+  },
+  {
     period: '2025-07',
     url: 'https://drive.google.com/file/d/154F2OeVvB1EEPU-pEtdDV1hEgS4_BVHu/preview',
     title: 'July 2025 Financial Statement'
