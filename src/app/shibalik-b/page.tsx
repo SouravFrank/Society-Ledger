@@ -1,9 +1,10 @@
+'use client';
 import PublicDashboard from '@/components/public-dashboard';
-import { getFinancialStatements, getMeetingMinutes } from '@/lib/db';
+import { financialStatements, meetingMinutes } from '@/data';
 
-export default async function PublicPage() {
-  const meetingMinutes = await getMeetingMinutes();
-  const financialStatements = await getFinancialStatements();
+export default function PublicPage() {
+  const sortedMinutes = [...meetingMinutes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sortedStatements = [...financialStatements].sort((a,b) => new Date(b.period + '-01').getTime() - new Date(a.period + '-01').getTime());
 
   return (
     <>
@@ -16,8 +17,8 @@ export default async function PublicPage() {
         </p>
       </div>
       <PublicDashboard
-        meetingMinutes={meetingMinutes}
-        financialStatements={financialStatements}
+        meetingMinutes={sortedMinutes}
+        financialStatements={sortedStatements}
       />
     </>
   );

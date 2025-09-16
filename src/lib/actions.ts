@@ -1,5 +1,8 @@
-'use server';
+// 'use server';
+// All server actions are disabled for static site generation.
+// The app now uses client-side logic for authentication and data is hardcoded.
 
+/*
 import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -100,3 +103,4 @@ export async function addFinancialStatementAction(formData: FormData) {
     revalidatePath('/');
     return { success: true };
 }
+*/
