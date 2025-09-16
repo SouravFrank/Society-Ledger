@@ -23,31 +23,25 @@ export const financialStatements: FinancialStatement[] = [
   {
     period: '2025-08',
     url: 'https://drive.google.com/file/d/1vh112uTHio9X7CzHmjyhEFXNBZluolrT/preview',
-    title: 'August 2025 Financial Statement'
   },
   {
     period: '2025-07',
     url: 'https://drive.google.com/file/d/154F2OeVvB1EEPU-pEtdDV1hEgS4_BVHu/preview',
-    title: 'July 2025 Financial Statement'
   },
   {
     period: '2025-06',
     url: 'https://drive.google.com/file/d/1zIkNm5b4RSSkhm7WyiCoJGPeGnYmQv2w/preview',
-    title: 'June 2025 Financial Statement'
   },
   {
     period: '2025-05',
     url: 'https://drive.google.com/file/d/11AkU18cXxPz9otmBDDHts2ADOeTJKP3C/preview',
-    title: 'May 2025 Financial Statement'
   },
   {
     period: '2025-04',
     url: 'https://drive.google.com/file/d/1W_Pj99czeXtjRzn7gnJmo4SbB6QE0dU0/preview',
-    title: 'April 2025 Financial Statement'
   },
   {
     period: '2025-03',
     url: 'https://drive.google.com/file/d/1nyEVre8OlRwhiLljCFTppg9bRS2kj55M/preview',
-    title: 'March 2025 Financial Statement'
   },
 ];

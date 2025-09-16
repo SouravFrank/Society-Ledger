@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { format } from 'date-fns';
+import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { groupBy } from 'lodash';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -67,7 +67,7 @@ export default function PublicDashboard({
                     <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
                     {(minutes as MeetingMinute[]).map((minute) => (
                       <SelectItem key={minute.date} value={minute.date}>
-                        {format(new Date(minute.date), 'MMMM d, yyyy')}
+                        {format(new Date(minute.date), 'MMMM dd, yyyy')}
                       </SelectItem>
                     ))}
                   </div>
@@ -92,7 +92,7 @@ export default function PublicDashboard({
               <SelectContent>
                 {financialStatements.map((statement) => (
                   <SelectItem key={statement.period} value={statement.period}>
-                    {format(new Date(statement.period + '-02'), 'MMMM yyyy')}
+                    {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -105,7 +105,11 @@ export default function PublicDashboard({
         <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle>
-              {selectedStatement?.title || (selectedMinute?.date ? format(new Date(selectedMinute.date), 'MMMM d, yyyy') : 'No Date Available')}
+              {selectedStatement
+                ? format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
+                : selectedMinute
+                ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
+                : 'No Date Available'}
             </DialogTitle>
           </DialogHeader>
           <div className="flex-1 mt-4 bg-white">
@@ -114,7 +118,7 @@ export default function PublicDashboard({
                 key={selectedStatement ? `statement-${selectedStatement.period}` : `minute-${selectedMinute?.date}`}
                 src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
                 className="w-full h-full border-0 rounded-md"
-                title={selectedStatement?.title || format(new Date(selectedMinute?.date || ''), 'MMMM d, yyyy')}
+                title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
               />
             )}
           </div>
