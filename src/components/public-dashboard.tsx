@@ -61,7 +61,7 @@ export default function PublicDashboard({
       }}>
         {!selectedStatement && !selectedMinute && (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-            <Card className="flex flex-col">
+            <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                   <FileText className="h-6 w-6" /> Meeting Minutes
@@ -89,7 +89,7 @@ export default function PublicDashboard({
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col">
+            <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                   <ImageIcon className="h-6 w-6" /> Financial Statements
