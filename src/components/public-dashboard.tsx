@@ -33,6 +33,11 @@ export default function PublicDashboard({
     groupBy(meetingMinutes, (minute) => new Date(minute.date).getFullYear())
   ).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
 
+  // Group financial statements by year in descending order
+  const groupedFinancialStatements = Object.entries(
+    groupBy(financialStatements, (statement) => new Date(statement.period + '-01').getFullYear())
+  ).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
+
   const getViewerUrl = (url: string) => {
     if (url.includes('drive.google.com')) {
       const isPreview = url.endsWith('/preview');
@@ -97,10 +102,15 @@ export default function PublicDashboard({
                     <SelectValue placeholder="Select a statement period" />
                   </SelectTrigger>
                   <SelectContent>
-                    {financialStatements.map((statement) => (
-                      <SelectItem key={statement.period} value={statement.period}>
-                        {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
-                      </SelectItem>
+                    {groupedFinancialStatements.map(([year, statements]) => (
+                      <div key={year}>
+                        <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
+                        {(statements as FinancialStatement[]).map((statement) => (
+                          <SelectItem key={statement.period} value={statement.period}>
+                            {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
+                          </SelectItem>
+                        ))}
+                      </div>
                     ))}
                   </SelectContent>
                 </Select>
