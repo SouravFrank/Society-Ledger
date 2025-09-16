@@ -1,14 +1,14 @@
-import type { NextConfig } from 'next';
+import type { NextConfig } from "next";
 
 const isGithubPages = process.env.GITHUB_PAGES === 'true';
-// Replace with your GitHub repo name (exactly as the repo)
-const repo = 'Society-Ledger';
+// If you are deploying to GitHub Pages, set the GITHUB_PAGES environment variable to 'true'
+export const repoName = 'Society-Ledger';
 
 const nextConfig: NextConfig = {
   output: 'export',
   reactStrictMode: true,
-  basePath: isGithubPages ? `/${repo}` : '',
-  assetPrefix: isGithubPages ? `/${repo}/` : '',
+  basePath: isGithubPages ? `/${repoName}` : "",
+  assetPrefix: isGithubPages ? `/${repoName}/` : "",
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
@@ -37,6 +37,7 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      // The remote pattern from the second config is a duplicate, so we don't need to add it again.
     ],
   },
 };

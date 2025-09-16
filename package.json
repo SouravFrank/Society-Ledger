@@ -8,10 +8,8 @@
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
-    "gh-deploy": "GITHUB_PAGES=true next build && touch out/.nojekyll && gh-pages -d out",
+    "deploy": "GITHUB_PAGES=true next build && touch out/.nojekyll && gh-pages -d out --dotfiles",
     "start": "next start",
-    "predeploy": "npm run build && touch out/.nojekyll",
-    "deploy": "gh-pages -d out",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
