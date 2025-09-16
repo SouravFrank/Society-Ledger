@@ -2,6 +2,12 @@ import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 
 export const meetingMinutes: MeetingMinute[] = [
   {
+    id: '2025-09-07',
+    date: '2025-09-07',
+    url: 'https://drive.google.com/file/d/1AFp_QCIU-Gx5sF2UfjVwDJiL0405Rax_/preview',
+    title: 'September 7 2025 Summery',
+  },
+  {
     id: '2025-08-21',
     date: '2025-08-21',
     url: 'https://drive.google.com/file/d/1MpzE9835NrbJG7I7wToOvPrV_lRYHIp1/preview',
