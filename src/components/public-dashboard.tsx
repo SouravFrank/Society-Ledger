@@ -48,81 +48,88 @@ export default function PublicDashboard({
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-6">
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-              <FileText className="h-6 w-6" /> Meeting Minutes
-            </CardTitle>
-            <CardDescription>Select a date to view the meeting minutes.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-grow items-center justify-center p-6">
-            <Select onValueChange={(date) => setSelectedMinute(meetingMinutes.find(m => m.date === date) || null)}>
-              <SelectTrigger className="w-full max-w-sm">
-                <SelectValue placeholder="Select a meeting date" />
-              </SelectTrigger>
-              <SelectContent>
-                {groupedMeetingMinutes.map(([year, minutes]) => (
-                  <div key={year}>
-                    <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
-                    {(minutes as MeetingMinute[]).map((minute) => (
-                      <SelectItem key={minute.date} value={minute.date}>
-                        {format(new Date(minute.date), 'MMMM dd, yyyy')}
+      <Dialog open={!!selectedStatement || !!selectedMinute} onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setSelectedStatement(null);
+          setSelectedMinute(null);
+        }
+      }}>
+        {!selectedStatement && !selectedMinute && (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2">
+                  <FileText className="h-6 w-6" /> Meeting Minutes
+                </CardTitle>
+                <CardDescription>Select a date to view the meeting minutes.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-grow items-center justify-center p-6">
+                <Select onValueChange={(date) => setSelectedMinute(meetingMinutes.find(m => m.date === date) || null)}>
+                  <SelectTrigger className="w-full max-w-sm">
+                    <SelectValue placeholder="Select a meeting date" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groupedMeetingMinutes.map(([year, minutes]) => (
+                      <div key={year}>
+                        <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
+                        {(minutes as MeetingMinute[]).map((minute) => (
+                          <SelectItem key={minute.date} value={minute.date}>
+                            {format(new Date(minute.date), 'MMMM dd, yyyy')}
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="font-headline flex items-center gap-2">
+                  <ImageIcon className="h-6 w-6" /> Financial Statements
+                </CardTitle>
+                <CardDescription>Select a period to view the financial statement.</CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-grow items-center justify-center p-6">
+                <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
+                  <SelectTrigger className="w-full max-w-sm">
+                    <SelectValue placeholder="Select a statement period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {financialStatements.map((statement) => (
+                      <SelectItem key={statement.period} value={statement.period}>
+                        {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
                       </SelectItem>
                     ))}
-                  </div>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
+                  </SelectContent>
+                </Select>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        <Card className="flex flex-col">
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-              <ImageIcon className="h-6 w-6" /> Financial Statements
-            </CardTitle>
-            <CardDescription>Select a period to view the financial statement.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-grow items-center justify-center p-6">
-            <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
-              <SelectTrigger className="w-full max-w-sm">
-                <SelectValue placeholder="Select a statement period" />
-              </SelectTrigger>
-              <SelectContent>
-                {financialStatements.map((statement) => (
-                  <SelectItem key={statement.period} value={statement.period}>
-                    {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Dialog open={!!selectedStatement || !!selectedMinute} onOpenChange={(isOpen) => { if (!isOpen) { setSelectedStatement(null); setSelectedMinute(null); } }}>
-        <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>
-              {selectedStatement
-                ? format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
-                : selectedMinute
-                ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
-                : 'No Date Available'}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="flex-1 mt-4 bg-white">
-            {(selectedStatement?.url || selectedMinute?.url) && (
+        {(selectedStatement?.url || selectedMinute?.url) && (
+          <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
+            <DialogHeader>
+              <DialogTitle>
+                {selectedStatement
+                  ? format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
+                  : selectedMinute
+                  ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
+                  : 'No Date Available'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 mt-4 bg-white">
               <iframe
                 key={selectedStatement ? `statement-${selectedStatement.period}` : `minute-${selectedMinute?.date}`}
                 src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
                 className="w-full h-full border-0 rounded-md"
                 title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
               />
-            )}
-          </div>
-        </DialogContent>
+            </div>
+          </DialogContent>
+        )}
       </Dialog>
     </div>
   );
