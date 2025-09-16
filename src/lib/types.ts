@@ -1,8 +1,8 @@
 export type MeetingMinute = {
-  id: string;
+  id?: string; // Made optional
   date: string; // YYYY-MM-DD
   url: string;
-  title: string;
+  title?: string; // Made optional
 };
 
 export type FinancialStatement = {
