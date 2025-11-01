@@ -20,6 +20,10 @@ export const meetingMinutes: MeetingMinute[] = [
 ];
 
 export const financialStatements: FinancialStatement[] = [
+ {
+    period: '2025-10',
+    url: 'https://drive.google.com/file/d/15yZqBNj_nKlbmRoNmbTZ1StZUlttU5HI/preview',
+  },
   {
     period: '2025-09',
     url: 'https://drive.google.com/file/d/1YMy7uM8wfndFwjOYTIP7NsDRNyRlwXxG/preview',
