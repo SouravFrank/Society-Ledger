@@ -6,6 +6,7 @@ import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { groupBy } from 'lodash';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
 import {
   Select,
   SelectContent,
@@ -19,14 +20,18 @@ import { FileText, ImageIcon } from 'lucide-react';
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
   financialStatements: FinancialStatement[];
+  // optional iron guard status (single image)
+  ironGuardStatus?: { url: string };
 }
 
 export default function PublicDashboard({
   meetingMinutes,
   financialStatements,
+  ironGuardStatus,
 }: PublicDashboardProps) {
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
+  const [selectedIronGuard, setSelectedIronGuard] = useState<FinancialStatement | null>(null);
 
   // Group meeting minutes by year in descending order
   const groupedMeetingMinutes = Object.entries(
@@ -37,6 +42,18 @@ export default function PublicDashboard({
   const groupedFinancialStatements = Object.entries(
     groupBy(financialStatements, (statement) => new Date(statement.period + '-01').getFullYear())
   ).sort(([yearA], [yearB]) => Number(yearB) - Number(yearA));
+
+  // helper to extract Drive file id
+  const extractDriveFileId = (url: string) => {
+    const fileIdMatch = url.match(/file\/d\/(.*?)\//) || url.match(/[?&]id=([^&]+)/);
+    return fileIdMatch ? fileIdMatch[1] : null;
+  };
+
+  const getDriveImageUrl = (url: string) => {
+    const id = extractDriveFileId(url);
+    if (id) return `https://drive.google.com/uc?export=view&id=${id}`;
+    return url;
+  };
 
   const getViewerUrl = (url: string) => {
     if (url.includes('drive.google.com')) {
@@ -53,14 +70,15 @@ export default function PublicDashboard({
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-6">
-      <Dialog open={!!selectedStatement || !!selectedMinute} onOpenChange={(isOpen) => {
+      <Dialog open={!!selectedStatement || !!selectedMinute || !!selectedIronGuard} onOpenChange={(isOpen) => {
         if (!isOpen) {
           setSelectedStatement(null);
           setSelectedMinute(null);
+          setSelectedIronGuard(null);
         }
       }}>
         {!selectedStatement && !selectedMinute && (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
@@ -89,7 +107,7 @@ export default function PublicDashboard({
               </CardContent>
             </Card>
 
-            <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
+              <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2">
                   <ImageIcon className="h-6 w-6" /> Financial Statements
@@ -116,27 +134,68 @@ export default function PublicDashboard({
                 </Select>
               </CardContent>
             </Card>
+
+              <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
+                <CardHeader>
+                  <CardTitle className="font-headline flex items-center gap-2">
+                    <ImageIcon className="h-6 w-6" /> Iron Guard Fund Status
+                  </CardTitle>
+                  <CardDescription>Click to view the latest Iron Guard Fund status image.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-grow items-center justify-center p-6">
+                  <div className="w-full max-w-sm text-center">
+                    <Button
+                      className="w-full"
+                      onClick={() => {
+                        console.log("--", ironGuardStatus, ironGuardStatus.url);
+                        
+                        if (ironGuardStatus) {
+                          // use the existing iframe viewer by setting selectedStatement
+                          setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url } as { url: string });
+                          // clear any image-specific selection
+                          setSelectedIronGuard(null);
+                        }
+                      }}
+                    >
+                      See Latest Status
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
           </div>
         )}
+{console.log(selectedIronGuard?.url)}
 
-        {(selectedStatement?.url || selectedMinute?.url) && (
+        {(selectedStatement?.url || selectedMinute?.url || selectedIronGuard?.url) && (
           <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
             <DialogHeader>
               <DialogTitle>
                 {selectedStatement
-                  ? format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
+                  ? selectedStatement.period === 'iron-guard'
+                    ? 'Iron Guard Fund Status'
+                    : format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
+                  : selectedIronGuard
+                  ? format(new Date(selectedIronGuard.period + '-01'), 'MMMM yyyy')
                   : selectedMinute
                   ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
                   : 'No Date Available'}
               </DialogTitle>
             </DialogHeader>
-            <div className="flex-1 mt-4 bg-white">
-              <iframe
-                key={selectedStatement ? `statement-${selectedStatement.period}` : `minute-${selectedMinute?.date}`}
-                src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
-                className="w-full h-full border-0 rounded-md"
-                title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
-              />
+            <div className="flex-1 mt-4 bg-white flex items-center justify-center">
+              {selectedIronGuard ? (
+                <img
+                  src={getDriveImageUrl(selectedIronGuard.url)}
+                  alt={`Iron Guard Status ${selectedIronGuard.period}`}
+                  className="max-h-[80vh] w-full object-contain rounded-md"
+                />
+              ) : (
+                <iframe
+                  key={selectedStatement ? `statement-${selectedStatement.period}` : `minute-${selectedMinute?.date}`}
+                  src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
+                  className="w-full h-full border-0 rounded-md"
+                  title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
+                />
+              )}
             </div>
           </DialogContent>
         )}

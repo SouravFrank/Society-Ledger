@@ -1,6 +1,6 @@
 'use client';
 import PublicDashboard from '@/components/public-dashboard';
-import { financialStatements, meetingMinutes } from '@/data';
+import { financialStatements, ironGuardStatus, meetingMinutes } from '@/data';
 
 export default function PublicPage() {
   const sortedMinutes = [...meetingMinutes].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -19,6 +19,7 @@ export default function PublicPage() {
       <PublicDashboard
         meetingMinutes={sortedMinutes}
         financialStatements={sortedStatements}
+        ironGuardStatus={ironGuardStatus}
       />
     </>
   );

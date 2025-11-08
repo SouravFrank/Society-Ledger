@@ -53,3 +53,7 @@ export const financialStatements: FinancialStatement[] = [
     url: 'https://drive.google.com/file/d/1nyEVre8OlRwhiLljCFTppg9bRS2kj55M/preview',
   },
 ];
+
+export const ironGuardStatus: { url: string } = {
+  url: 'https://drive.google.com/file/d/1ThO1KcD05xYhpbrV141ErEqzQqRCYCor/preview',
+};
