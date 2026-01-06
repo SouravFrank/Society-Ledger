@@ -20,6 +20,10 @@ export const meetingMinutes: MeetingMinute[] = [
 ];
 
 export const financialStatements: FinancialStatement[] = [
+    {
+    period: "2025-12",
+    url: "https://drive.google.com/file/d/1Y8pN14DepfDvdU3QunTi3mij7BrQryCX/preview",
+  },
   {
     period: "2025-11",
     url: "https://drive.google.com/file/d/1pKT9iLe4_q2YOcSJzTQVmW6kx8vq9NkZ/preview",
@@ -59,5 +63,5 @@ export const financialStatements: FinancialStatement[] = [
 ];
 
 export const ironGuardStatus: { url: string } = {
-  url: "https://drive.google.com/file/d/1ThO1KcD05xYhpbrV141ErEqzQqRCYCor/preview",
+  url: "https://drive.google.com/file/d/15AxGN4Q_ruOXRpwHTgKq9jo0KeTOAQcV/preview",
 };
