@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { FileText, ImageIcon } from 'lucide-react';
+import { FileText, ImageIcon, Loader2 } from 'lucide-react';
 
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
@@ -32,6 +32,7 @@ export default function PublicDashboard({
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedIronGuard, setSelectedIronGuard] = useState<FinancialStatement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Group meeting minutes by year in descending order
   const groupedMeetingMinutes = Object.entries(
@@ -75,6 +76,7 @@ export default function PublicDashboard({
           setSelectedStatement(null);
           setSelectedMinute(null);
           setSelectedIronGuard(null);
+          setIsLoading(false);
         }
       }}>
         {!selectedStatement && !selectedMinute && (
@@ -87,7 +89,10 @@ export default function PublicDashboard({
                 <CardDescription>Select a date to view the meeting minutes.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-grow items-center justify-center p-6">
-                <Select onValueChange={(date) => setSelectedMinute(meetingMinutes.find(m => m.date === date) || null)}>
+                <Select onValueChange={(date) => {
+                  setSelectedMinute(meetingMinutes.find(m => m.date === date) || null);
+                  setIsLoading(true);
+                }}>
                   <SelectTrigger className="w-full max-w-sm">
                     <SelectValue placeholder="Select a meeting date" />
                   </SelectTrigger>
@@ -115,7 +120,10 @@ export default function PublicDashboard({
                 <CardDescription>Select a period to view the financial statement.</CardDescription>
               </CardHeader>
               <CardContent className="flex flex-grow items-center justify-center p-6">
-                <Select onValueChange={(period) => setSelectedStatement(financialStatements.find(s => s.period === period) || null)}>
+                <Select onValueChange={(period) => {
+                  setSelectedStatement(financialStatements.find(s => s.period === period) || null);
+                  setIsLoading(true);
+                }}>
                   <SelectTrigger className="w-full max-w-sm">
                     <SelectValue placeholder="Select a statement period" />
                   </SelectTrigger>
@@ -147,11 +155,10 @@ export default function PublicDashboard({
                     <Button
                       className="w-full"
                       onClick={() => {
-                        console.log("--", ironGuardStatus, ironGuardStatus.url);
-                        
                         if (ironGuardStatus) {
                           // use the existing iframe viewer by setting selectedStatement
                           setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url } as { url: string });
+                          setIsLoading(true);
                           // clear any image-specific selection
                           setSelectedIronGuard(null);
                         }
@@ -164,7 +171,6 @@ export default function PublicDashboard({
               </Card>
           </div>
         )}
-{console.log(selectedIronGuard?.url)}
 
         {(selectedStatement?.url || selectedMinute?.url || selectedIronGuard?.url) && (
           <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
@@ -181,12 +187,21 @@ export default function PublicDashboard({
                   : 'No Date Available'}
               </DialogTitle>
             </DialogHeader>
-            <div className="flex-1 mt-4 bg-white flex items-center justify-center">
+            <div className="flex-1 mt-4 bg-white flex items-center justify-center relative">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-md z-10">
+                  <div className="flex flex-col items-center gap-2">
+                    <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+                    <p className="text-sm text-gray-600">Loading...</p>
+                  </div>
+                </div>
+              )}
               {selectedIronGuard ? (
                 <img
                   src={getDriveImageUrl(selectedIronGuard.url)}
                   alt={`Iron Guard Status ${selectedIronGuard.period}`}
                   className="max-h-[80vh] w-full object-contain rounded-md"
+                  onLoad={() => setIsLoading(false)}
                 />
               ) : (
                 <iframe
@@ -194,6 +209,7 @@ export default function PublicDashboard({
                   src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
                   className="w-full h-full border-0 rounded-md"
                   title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
+                  onLoad={() => setIsLoading(false)}
                 />
               )}
             </div>
