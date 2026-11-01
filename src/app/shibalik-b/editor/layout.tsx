@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button';
-import { logoutAction } from '@/lib/actions';
-import { BookCopy, LogOut } from 'lucide-react';
+import { LogoutButton } from '@/components/logout-button';
+import { BookCopy } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EditorLayout({
@@ -21,12 +20,7 @@ export default function EditorLayout({
           </Link>
         </nav>
         <div className="flex items-center gap-4 md:ml-auto">
-          <form action={logoutAction}>
-              <Button variant="outline" size="sm" type="submit">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-              </Button>
-          </form>
+          <LogoutButton />
         </div>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">

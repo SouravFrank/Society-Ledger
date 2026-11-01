@@ -157,7 +157,7 @@ export default function PublicDashboard({
                       onClick={() => {
                         if (ironGuardStatus) {
                           // use the existing iframe viewer by setting selectedStatement
-                          setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url } as { url: string });
+                          setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url });
                           setIsLoading(true);
                           // clear any image-specific selection
                           setSelectedIronGuard(null);

@@ -1,27 +1,26 @@
-name: Deploy GitHub Pages
+name: Deploy to GitHub Pages
 
+# Deploy the static export whenever changes land on main
+# (i.e. after a PR is merged), or manually from the Actions tab.
 on:
   push:
     branches:
-      - develop
+      - main
   workflow_dispatch:
 
+# The gh-pages package pushes the exported site to the gh-pages branch,
+# which is the branch GitHub Pages serves from.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: github-pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build static site
+  deploy:
+    name: Build & publish static site
     runs-on: ubuntu-latest
-
-    env:
-      GITHUB_PAGES: "true"
 
     steps:
       - name: Checkout
@@ -36,30 +35,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Preserve Next.js static assets
-        run: touch out/.nojekyll
+      - name: Typecheck
+        run: npm run typecheck
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v6
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: out
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v5
+      # Builds the static export (GITHUB_PAGES=true) and pushes out/
+      # to the gh-pages branch via the npm deploy script.
+      - name: Build & publish
+        run: npm run deploy

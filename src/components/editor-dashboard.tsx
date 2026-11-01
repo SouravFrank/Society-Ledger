@@ -1,14 +1,9 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import {
-  addFinancialStatementAction,
-  addMeetingMinuteAction,
-} from '@/lib/actions';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -29,8 +24,6 @@ export default function EditorDashboard({
   initialFinancialStatements,
 }: EditorDashboardProps) {
   const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteUrl, setMinuteUrl] = useState<string>('');
@@ -53,47 +46,29 @@ export default function EditorDashboard({
     setStatementTitle(format(date, "MMMM yyyy 'Financial Statement'"));
   }, [statementPeriod]);
 
-  const handleMinuteSubmit = (formData: FormData) => {
+  // The site is a fully static export, so documents cannot be persisted from
+  // the browser — they are maintained in src/data/index.ts and deployed via git.
+  const handleMinuteSubmit = () => {
       if (!minuteDate || !minuteUrl || !minuteTitle) {
           toast({ variant: 'destructive', title: 'Error', description: 'Please provide a date and a valid Google Drive link.' });
           return;
       }
-      formData.set('date', format(minuteDate, 'yyyy-MM-dd'));
-      formData.set('title', minuteTitle);
-      formData.set('url', minuteUrl);
-      
-      startTransition(async () => {
-        const result = await addMeetingMinuteAction(formData);
-        if (result?.success) {
-            toast({ title: 'Success', description: 'Meeting minute added.' });
-            setMinuteDate(undefined);
-            setMinuteUrl('');
-            router.refresh();
-        } else {
-            toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add meeting minute.' });
-        }
+
+      toast({
+          title: 'Uploads are disabled',
+          description: 'This site is a static export. Add the document in src/data/index.ts and redeploy.',
       });
   }
 
-  const handleStatementSubmit = (formData: FormData) => {
+  const handleStatementSubmit = () => {
     if (!statementUrl || !statementTitle) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please provide a period and a valid Google Drive link.' });
         return;
     }
-    
-    formData.set('period', `${statementPeriod.year}-${String(statementPeriod.month).padStart(2, '0')}`);
-    formData.set('title', statementTitle);
-    formData.set('url', statementUrl);
-    
-    startTransition(async () => {
-        const result = await addFinancialStatementAction(formData);
-        if (result?.success) {
-            toast({ title: 'Success', description: 'Financial statement added.' });
-            setStatementUrl('');
-            router.refresh();
-        } else {
-            toast({ variant: 'destructive', title: 'Error', description: result?.error || 'Failed to add financial statement.' });
-        }
+
+    toast({
+        title: 'Uploads are disabled',
+        description: 'This site is a static export. Add the document in src/data/index.ts and redeploy.',
     });
   }
 
@@ -126,7 +101,7 @@ export default function EditorDashboard({
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !minuteUrl || !minuteDate}>{isPending ? "Saving..." : "Save Minute"}</Button>
+                    <Button type="submit" disabled={!minuteUrl || !minuteDate}>Save Minute</Button>
                 </CardFooter>
                 </form>
             </Card>
@@ -178,7 +153,7 @@ export default function EditorDashboard({
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={isPending || !statementUrl}>{isPending ? "Saving..." : "Save Statement"}</Button>
+                    <Button type="submit" disabled={!statementUrl}>Save Statement</Button>
                 </CardFooter>
                 </form>
             </Card>
