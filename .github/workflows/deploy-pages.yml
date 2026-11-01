@@ -40,12 +40,13 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # The gh-pages package pushes from a temporary git repo, so the checkout's
-      # persisted credentials must be shared globally for the push to authenticate.
-      - name: Share checkout credentials globally
+      # The gh-pages package pushes from a temporary git repo, so it needs
+      # globally available credentials to authenticate the push.
+      - name: Configure git credentials for the gh-pages push
         run: |
-          auth_header="$(git config --local --get http.https://github.com/.extraheader)"
-          git config --global http.https://github.com/.extraheader "$auth_header"
+          git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Typecheck
         run: npm run typecheck
