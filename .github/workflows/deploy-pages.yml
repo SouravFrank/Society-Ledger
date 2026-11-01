@@ -41,10 +41,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       # The gh-pages package pushes from a temporary git repo, so it needs
-      # globally available credentials to authenticate the push.
+      # globally available credentials to authenticate the push. The token is
+      # expanded here so it is baked into the helper and available to every
+      # later git push in the job.
       - name: Configure git credentials for the gh-pages push
         run: |
-          git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
+          git config --global credential.helper "!f() { echo 'username=x-access-token'; echo \"password=${GITHUB_TOKEN}\"; }; f"
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
