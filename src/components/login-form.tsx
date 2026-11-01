@@ -44,7 +44,10 @@ export function LoginForm() {
           name="username"
           type="text"
           placeholder="Username"
+          autoCapitalize="none"
+          autoCorrect="off"
           required
+          className="h-11 rounded-xl"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={isPending}
@@ -57,12 +60,13 @@ export function LoginForm() {
           type="password"
           placeholder="Password"
           required
+          className="h-11 rounded-xl"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={isPending}
         />
       </div>
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="h-11 w-full rounded-xl text-base font-semibold">
         {isPending ? 'Logging in...' : 'Login'}
       </Button>
     </form>

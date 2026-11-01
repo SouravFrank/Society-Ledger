@@ -8,22 +8,29 @@ export default function EditorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <header className="sticky top-0 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <nav className="flex w-full flex-row items-center gap-5 text-sm font-medium">
+    <div className="flex min-h-[100dvh] w-full flex-col bg-muted/30">
+      <header className="pt-safe sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+        <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4">
           <Link
             href="/shibalik-b/editor"
-            className="flex items-center gap-2 text-lg font-semibold md:text-base"
+            className="flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <BookCopy className="h-6 w-6" />
-            <span>Editor Dashboard</span>
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+              <BookCopy className="h-5 w-5" />
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="font-headline text-sm font-bold tracking-tight text-foreground">
+                Editor Dashboard
+              </span>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Society Ledger
+              </span>
+            </span>
           </Link>
-        </nav>
-        <div className="flex items-center gap-4 md:ml-auto">
           <LogoutButton />
         </div>
       </header>
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-4 md:pb-24">
         {children}
       </main>
     </div>

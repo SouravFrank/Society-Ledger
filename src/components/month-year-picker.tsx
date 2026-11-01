@@ -23,12 +23,12 @@ export function MonthYearPicker({ period, onPeriodChange }: MonthYearPickerProps
   const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
   return (
-    <div className="flex gap-4">
+    <div className="flex w-full gap-2">
       <Select
         value={String(period.month)}
         onValueChange={(value) => onPeriodChange({ ...period, month: parseInt(value, 10) })}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="h-11 flex-1 rounded-xl">
           <SelectValue placeholder="Month" />
         </SelectTrigger>
         <SelectContent>
@@ -43,7 +43,7 @@ export function MonthYearPicker({ period, onPeriodChange }: MonthYearPickerProps
         value={String(period.year)}
         onValueChange={(value) => onPeriodChange({ ...period, year: parseInt(value, 10) })}
       >
-        <SelectTrigger className="w-[120px]">
+        <SelectTrigger className="h-11 flex-1 rounded-xl">
           <SelectValue placeholder="Year" />
         </SelectTrigger>
         <SelectContent>

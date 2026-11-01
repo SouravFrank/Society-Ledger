@@ -1,14 +1,37 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/toaster';
+import { repoName } from '../../next.config';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+
+// Mirror the GitHub Pages base path handling used across the static export.
+const isGithubPages = process.env.GITHUB_PAGES === 'true';
+const basePath = isGithubPages ? `/${repoName}` : '';
 
 export const metadata: Metadata = {
   title: 'Society Ledger',
   description: 'Meeting minutes and financial statements for your society.',
+  manifest: `${basePath}/manifest.webmanifest`,
+  // Make the site behave like a standalone app when added to a home screen.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Society Ledger',
+  },
+  icons: {
+    icon: [{ url: `${basePath}/resources/app-icon.svg`, type: 'image/svg+xml' }],
+    apple: [{ url: `${basePath}/resources/app-icon.svg` }],
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#9ac663',
 };
 
 export default function RootLayout({

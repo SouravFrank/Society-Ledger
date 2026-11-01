@@ -13,9 +13,15 @@ export function LogoutButton() {
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={handleLogout}>
-      <LogOut className="h-4 w-4 mr-2" />
-      Logout
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={handleLogout}
+      className="h-9 w-9 shrink-0 rounded-xl sm:h-10 sm:w-auto sm:rounded-md sm:px-4"
+      aria-label="Logout"
+    >
+      <LogOut className="h-4 w-4" />
+      <span className="hidden sm:inline">Logout</span>
     </Button>
   );
 }

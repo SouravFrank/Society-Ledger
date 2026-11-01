@@ -1,24 +1,25 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { repoName } from '../../next.config';
+import { Building2 } from 'lucide-react';
 
 export function Header() {
-  const isGithubPages = process.env.GITHUB_PAGES === 'true';
-  const imageSource = `${isGithubPages ? `/${repoName}` : ""}/resources/letter-header-only.png`
-
   return (
-    <header className="w-full bg-background py-4 flex justify-center">
-      <div className="container px-4 md:px-6 flex justify-center">
-        <Link href="/">
-          <Image
-            src={imageSource}
-            alt="Society Header"
-            width={2480}
-            height={676}
-            className="w-full h-auto max-w-4xl"
-            priority
-            data-ai-hint="header graphic"
-          />
+    <header className="pt-safe sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+      <div className="mx-auto flex h-14 w-full max-w-3xl items-center justify-between px-4">
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <Building2 className="h-5 w-5" />
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span className="font-headline text-sm font-bold tracking-tight text-foreground">
+              Shibalik Block B
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground">
+              Society Ledger
+            </span>
+          </span>
         </Link>
       </div>
     </header>
