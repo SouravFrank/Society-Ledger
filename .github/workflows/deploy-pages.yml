@@ -1,27 +1,26 @@
-name: Deploy GitHub Pages
+name: Deploy to GitHub Pages
 
+# Deploy the static export whenever changes land on main
+# (i.e. after a PR is merged), or manually from the Actions tab.
 on:
   push:
     branches:
-      - develop
+      - main
   workflow_dispatch:
 
+# The gh-pages package pushes the exported site to the gh-pages branch,
+# which is the branch GitHub Pages serves from.
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: github-pages
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build static site
+  deploy:
+    name: Build & publish static site
     runs-on: ubuntu-latest
-
-    env:
-      GITHUB_PAGES: "true"
 
     steps:
       - name: Checkout
@@ -36,30 +35,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Configure Git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Preserve Next.js static assets
-        run: touch out/.nojekyll
+      # The gh-pages package pushes from a temporary git repo, so it needs
+      # globally available credentials to authenticate the push. The token is
+      # expanded here so it is baked into the helper and available to every
+      # later git push in the job.
+      - name: Configure git credentials for the gh-pages push
+        run: |
+          git config --global credential.helper "!f() { echo 'username=x-access-token'; echo \"password=${GITHUB_TOKEN}\"; }; f"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v6
+      - name: Typecheck
+        run: npm run typecheck
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: out
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v5
+      # Builds the static export (GITHUB_PAGES=true) and pushes out/
+      # to the gh-pages branch via the npm deploy script.
+      - name: Build & publish
+        run: npm run deploy
