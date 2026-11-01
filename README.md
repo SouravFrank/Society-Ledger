@@ -1,49 +1,57 @@
+<div align="center">
+
+<img src="public/resources/letter-header-only.png" alt="Society Ledger" width="750"/>
+
 # Society Ledger
 
-<p align="center">
-  <img src="public/resources/letter-header-only.png" alt="Society Ledger Header" width="750"/>
-</p>
+### A modern, simple & efficient way to manage and display your society's important documents.
 
-<p align="center">
-  <a href="https://souravfrank.github.io/Society-Ledger/"><strong>🌐 View Live Site</strong></a>
-</p>
+<br>
 
-<p align="center">
-  A modern, simple, and efficient way to manage and display your society's important documents.
-  <br />
-  Built for personal use to serve the needs of my apartment community — residents get a clean
-  public archive, and editors get a password-protected dashboard to publish new documents.
-</p>
+<a href="https://souravfrank.github.io/Society-Ledger/">
+  <img src="https://img.shields.io/badge/%F0%9F%8C%90_LIVE_SITE-souravfrank.github.io%2FSociety--Ledger-84cc16?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Site — souravfrank.github.io/Society-Ledger" width="430"/>
+</a>
 
-<p align="center">
-  <a href="https://github.com/SouravFrank/Society-Ledger/actions/workflows/deploy-pages.yml">
-    <img src="https://github.com/SouravFrank/Society-Ledger/actions/workflows/deploy-pages.yml/badge.svg" alt="Deploy status" />
-  </a>
-  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-</p>
+### 🔗 **[https://souravfrank.github.io/Society-Ledger/](https://souravfrank.github.io/Society-Ledger/)**
+
+<br>
+
+<a href="https://github.com/SouravFrank/Society-Ledger/actions/workflows/deploy-pages.yml">
+  <img src="https://github.com/SouravFrank/Society-Ledger/actions/workflows/deploy-pages.yml/badge.svg" alt="Deploy status"/>
+</a>
+<img src="https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=nextdotjs&logoColor=white" alt="Next.js"/>
+<img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React"/>
+<img src="https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"/>
+<img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"/>
+
+*Built for personal use to serve the needs of my apartment community — residents get a clean
+public archive, and editors get a password-protected dashboard to publish new documents.*
+
+</div>
+
+---
 
 ## ✨ Features
 
-- **Public Document Viewer:** A clean, intuitive interface for residents to browse meeting minutes and financial statements.
-- **Secure Editor Dashboard:** A password-protected area for administrators to upload and manage documents.
-- **Automated Title Generation:** Document titles are automatically generated from the selected date or period, keeping the archive consistent.
-- **Modern UI/UX:** A responsive, polished light theme built with ShadCN UI components.
-- **Fully Static & Fast:** Exported as a static site (App Router + Server Components), so pages load instantly from GitHub's CDN.
+|                        |                                                                                                        |
+| ---------------------- | ------------------------------------------------------------------------------------------------------ |
+| 📄 **Public Viewer**    | A clean, intuitive interface for residents to browse meeting minutes and financial statements.          |
+| 🔐 **Secure Editor**    | A password-protected dashboard for administrators to manage documents.                                  |
+| 🏷️ **Auto Titles**      | Document titles are generated automatically from the selected date or period, keeping the archive tidy. |
+| 🎨 **Modern UI/UX**     | A responsive, polished light theme built with ShadCN UI components.                                     |
+| ⚡ **Fully Static**     | Exported as a static site (App Router + Server Components) — pages load instantly from GitHub's CDN.    |
 
 ## 🚀 Tech Stack
 
-| Layer        | Technology                                                      |
-| ------------ | --------------------------------------------------------------- |
-| Framework    | [Next.js](https://nextjs.org/) (App Router, static export)      |
-| Language     | [TypeScript](https://www.typescriptlang.org/)                   |
-| Styling      | [Tailwind CSS](https://tailwindcss.com/)                        |
-| UI Components| [ShadCN UI](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/) |
-| Icons        | [Lucide React](https://lucide.dev/)                             |
-| Auth         | Cookie-based session for the editor panel                       |
-| Hosting      | [GitHub Pages](https://pages.github.com/) (deployed from the `gh-pages` branch) |
+| Layer         | Technology                                                                     |
+| ------------- | ------------------------------------------------------------------------------ |
+| Framework     | [Next.js](https://nextjs.org/) (App Router, static export)                      |
+| Language      | [TypeScript](https://www.typescriptlang.org/)                                   |
+| Styling       | [Tailwind CSS](https://tailwindcss.com/)                                        |
+| UI Components | [ShadCN UI](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/)     |
+| Icons         | [Lucide React](https://lucide.dev/)                                             |
+| Auth          | Cookie/`sessionStorage`-based session for the editor panel                      |
+| Hosting       | [GitHub Pages](https://pages.github.com/) (deployed from the `gh-pages` branch) |
 
 ## 🛠️ Getting Started
 
@@ -54,59 +62,69 @@
 
 ### Installation & Setup
 
-1. **Clone the repository:**
+```sh
+# 1. Clone the repository
+git clone https://github.com/SouravFrank/Society-Ledger.git
+cd Society-Ledger
 
-   ```sh
-   git clone https://github.com/SouravFrank/Society-Ledger.git
-   cd Society-Ledger
-   ```
+# 2. Install dependencies
+npm install
 
-2. **Install dependencies:**
+# 3. Start the development server
+npm run dev
+```
 
-   ```sh
-   npm install
-   ```
+Then open [http://localhost:9002](http://localhost:9002):
 
-3. **Start the development server:**
+| Route                    | Page             |
+| ------------------------ | ---------------- |
+| `/shibalik-b`            | Public viewer    |
+| `/shibalik-b/login`      | Editor login     |
+| `/shibalik-b/editor`     | Editor dashboard |
 
-   ```sh
-   npm run dev
-   ```
-
-4. **Open your browser** at [http://localhost:9002](http://localhost:9002):
-   - Public viewer: `/shibalik-b`
-   - Editor login: `/shibalik-b/login`
-
-### Editor Credentials
+<details>
+<summary><b>🔑 Editor Credentials</b></summary>
 
 Editor access lives in [`src/data/credentials.ts`](src/data/credentials.ts).
 
+</details>
+
 ## 📜 Available Scripts
 
-| Command             | Description                                                        |
-| ------------------- | ------------------------------------------------------------------ |
-| `npm run dev`       | Start the dev server on port 9002                                   |
-| `npm run build`     | Production build                                                    |
-| `npm run build:pages` | Static export configured for GitHub Pages (`out/`)                |
-| `npm run deploy`    | Build for Pages and publish `out/` to the `gh-pages` branch         |
-| `npm run typecheck` | Run the TypeScript compiler (`tsc --noEmit`)                        |
-| `npm run lint`      | Lint the codebase                                                   |
-| `npm run genkit:dev`| Start the Genkit AI flow runner (dev-time tooling)                  |
+| Command               | Description                                                          |
+| --------------------- | -------------------------------------------------------------------- |
+| `npm run dev`         | Start the dev server on port 9002                                     |
+| `npm run build`       | Production build                                                      |
+| `npm run build:pages` | Static export configured for GitHub Pages (`out/`)                    |
+| `npm run deploy`      | Build for Pages and publish `out/` to the `gh-pages` branch           |
+| `npm run typecheck`   | Run the TypeScript compiler (`tsc --noEmit`)                          |
+| `npm run lint`        | Lint the codebase                                                     |
+| `npm run genkit:dev`  | Start the Genkit AI flow runner (dev-time tooling)                    |
 
 ## 🌍 Deployment
 
-The site deploys **automatically on every merge to `main`** via GitHub Actions:
+> [!IMPORTANT]
+> The live site is at **https://souravfrank.github.io/Society-Ledger/** —
+> it deploys **automatically on every merge to `main`**.
 
 1. The [`deploy-pages.yml`](.github/workflows/deploy-pages.yml) workflow runs `npm run typecheck` and `npm run deploy`.
 2. `deploy` builds the static export (`GITHUB_PAGES=true next build`) and pushes `out/` to the `gh-pages` branch.
-3. GitHub Pages publishes the new build at https://souravfrank.github.io/Society-Ledger/.
+3. GitHub Pages publishes the new build.
 
-You can also trigger a deployment manually from the **Actions** tab (`workflow_dispatch`),
-or publish from your machine with `npm run deploy`.
+<details>
+<summary><b>Manual & local deploys</b></summary>
+
+- Trigger a deployment from the **Actions** tab (`workflow_dispatch`).
+- Or publish from your machine: `npm run deploy`.
 
 > The base path for GitHub Pages is handled in [`next.config.ts`](next.config.ts) via the `GITHUB_PAGES` environment variable.
 
+</details>
+
 ## 📁 Project Structure
+
+<details>
+<summary><b>Browse the layout</b></summary>
 
 ```
 src/
@@ -117,10 +135,15 @@ src/
 ├── components/          # App components + ShadCN UI primitives (ui/)
 ├── data/                # Site content (documents) and credentials
 ├── hooks/               # Shared React hooks
-├── lib/                 # DB helpers and shared types
-└── middleware.ts        # Route protection for the editor panel
+└── lib/                 # DB helpers and shared types
 ```
+
+</details>
 
 ---
 
+<div align="center">
+
 This project was a joy to build and serves a real need for my community. Enjoy!
+
+</div>
