@@ -76,18 +76,18 @@ export default function EditorDashboard({
     <Tabs defaultValue="minutes" className="w-full">
       {/* App-style segmented control - prominent and sticky */}
       <div className="sticky top-0 z-30 border-b bg-background/80 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-        <TabsList className="grid h-12 w-full max-w-3xl mx-auto grid-cols-2 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border">
+        <TabsList className="grid h-16 w-full max-w-3xl mx-auto grid-cols-2 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border sm:h-12">
             <TabsTrigger
               value="minutes"
-              className="gap-1.5 rounded-xl text-[13px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:gap-2 sm:text-sm"
+              className="flex-col gap-1 rounded-xl px-1 text-[11px] font-semibold leading-tight data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
             >
-              <FileText className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Meeting Minutes
+              <FileText className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Meeting Summery
             </TabsTrigger>
             <TabsTrigger
               value="statements"
-              className="gap-1.5 rounded-xl text-[13px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:gap-2 sm:text-sm"
+              className="flex-col gap-1 rounded-xl px-1 text-[11px] font-semibold leading-tight data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
             >
-              <FileImage className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Statements
+              <FileImage className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Financial Statements
             </TabsTrigger>
         </TabsList>
       </div>

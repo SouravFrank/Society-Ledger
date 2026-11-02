@@ -19,6 +19,16 @@ body {
   overscroll-behavior-y: none;
 }
 
+/* Hide scrollbars everywhere for an app-like feel; scrolling still works
+   via wheel/touch/keyboard, the scrollbar itself is never visible. */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / legacy Edge */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
 ::selection {
   background-color: hsl(84 48% 58% / 0.3);
 }
