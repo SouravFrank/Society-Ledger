@@ -74,20 +74,20 @@ export default function EditorDashboard({
 
   return (
     <Tabs defaultValue="minutes" className="w-full">
-      {/* App-style segmented control */}
-      <div className="sticky top-appbar z-30 -mx-4 border-b bg-background/80 px-4 pb-2.5 pt-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-        <TabsList className="grid h-11 w-full grid-cols-2 rounded-xl bg-muted p-1">
+      {/* App-style segmented control - prominent and sticky */}
+      <div className="sticky top-0 z-30 border-b bg-background/80 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+        <TabsList className="grid h-12 w-full max-w-3xl mx-auto grid-cols-2 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border">
             <TabsTrigger
               value="minutes"
-              className="gap-1.5 rounded-lg text-[13px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="gap-2 rounded-xl text-sm font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary"
             >
-              <FileText className="h-4 w-4" /> Meeting Minutes
+              <FileText className="h-5 w-5" /> <span className="hidden sm:inline">Meeting Minutes</span>
             </TabsTrigger>
             <TabsTrigger
               value="statements"
-              className="gap-1.5 rounded-lg text-[13px] font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              className="gap-2 rounded-xl text-sm font-semibold data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary"
             >
-              <FileImage className="h-4 w-4" /> Statements
+              <FileImage className="h-5 w-5" /> <span className="hidden sm:inline">Statements</span>
             </TabsTrigger>
         </TabsList>
       </div>
