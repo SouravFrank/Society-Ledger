@@ -97,8 +97,8 @@ export default function PublicDashboard({
                       : 'text-muted-foreground hover:text-foreground active:bg-background/60')
                   }
                 >
-                  <Icon className="h-5 w-5 shrink-0" />
-                  <span className="whitespace-normal text-balance text-[11px] font-semibold leading-tight">
+                  <Icon className="h-6 w-6 shrink-0" />
+                  <span className="whitespace-normal text-balance text-[14px] font-semibold leading-tight">
                     {fullLabel}
                   </span>
                   {activeTab === id && (
@@ -233,10 +233,10 @@ export default function PublicDashboard({
                     ? 'Iron Guard Fund Status'
                     : format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
                   : selectedIronGuard
-                  ? format(new Date(selectedIronGuard.period + '-01'), 'MMMM yyyy')
-                  : selectedMinute
-                  ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
-                  : 'No Date Available'}
+                    ? format(new Date(selectedIronGuard.period + '-01'), 'MMMM yyyy')
+                    : selectedMinute
+                      ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
+                      : 'No Date Available'}
               </DialogTitle>
             </DialogHeader>
             <div className="relative mt-0 min-h-0 flex-1 bg-white sm:mt-3 sm:rounded-xl">
