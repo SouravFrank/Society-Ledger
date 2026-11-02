@@ -81,11 +81,11 @@ export default function EditorDashboard({
 
   return (
     <>
-      <div className="pb-28 sm:pb-8">
-        {/* Desktop: pill-style tab row */}
-        <div className="hidden sm:block">
-          <div className="mb-6 flex w-full justify-center">
-            <div className="inline-flex h-12 items-center gap-1 rounded-full bg-muted/60 p-1 shadow-sm ring-1 ring-border">
+      <div className="pb-10">
+        {/* Top tab navigation: full labels wrapping into two balanced lines */}
+        <div className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+          <div className="mx-auto w-full max-w-3xl px-4 py-3">
+            <div className="grid grid-cols-2 gap-1 rounded-2xl bg-muted/50 p-1 shadow-sm ring-1 ring-border">
               {NAV_ITEMS.map(({ id, fullLabel, icon: Icon }) => (
                 <button
                   key={id}
@@ -93,48 +93,24 @@ export default function EditorDashboard({
                   onClick={() => setActiveTab(id)}
                   aria-current={activeTab === id ? 'page' : undefined}
                   className={
-                    'inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors ' +
+                    'relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2.5 text-center transition-colors ' +
                     (activeTab === id
-                      ? 'bg-background text-foreground shadow'
-                      : 'text-muted-foreground hover:text-foreground')
+                      ? 'bg-background text-foreground shadow-sm ring-1 ring-primary'
+                      : 'text-muted-foreground hover:text-foreground active:bg-background/60')
                   }
                 >
-                  <Icon className="h-5 w-5" />
-                  {fullLabel}
+                  <Icon className="h-5 w-5 shrink-0" />
+                  <span className="whitespace-normal text-balance text-[11px] font-semibold leading-tight">
+                    {fullLabel}
+                  </span>
+                  {activeTab === id && (
+                    <span className="absolute -bottom-1 h-1 w-6 rounded-full bg-primary" />
+                  )}
                 </button>
               ))}
             </div>
           </div>
         </div>
-
-        {/* Mobile: bottom tab bar */}
-        <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur-md sm:hidden">
-          <div className="mx-auto grid max-w-3xl grid-cols-2">
-            {NAV_ITEMS.map(({ id, label, fullLabel, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setActiveTab(id)}
-                aria-label={fullLabel}
-                aria-current={activeTab === id ? 'page' : undefined}
-                className={
-                  'relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ' +
-                  (activeTab === id
-                    ? 'text-primary'
-                    : 'text-muted-foreground active:text-primary')
-                }
-              >
-                <span className="relative flex h-6 w-6 items-center justify-center">
-                  <Icon className="h-5 w-5" />
-                  {activeTab === id && (
-                    <span className="absolute -bottom-1.5 h-1 w-1 rounded-full bg-primary" />
-                  )}
-                </span>
-                {label}
-              </button>
-            ))}
-          </div>
-        </nav>
 
         {activeTab === 'minutes' && (
           <div className="space-y-6">
