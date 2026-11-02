@@ -1,37 +1,43 @@
-
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookCopy } from 'lucide-react';
 import Head from 'next/head';
+import { repoName } from '../../next.config';
 
 export default function HomePage() {
   const router = useRouter();
 
+  const isGithubPages = process.env.GITHUB_PAGES === 'true';
+  const basePath = isGithubPages ? `/${repoName}` : '';
+  const redirectUrl = `${basePath}/shibalik-b`;
+
   useEffect(() => {
     // Fallback redirect for clients with JavaScript enabled but slow initial load
-    router.replace('/shibalik-b');
-  }, [router]);
+    router.replace(redirectUrl);
+  }, [router, redirectUrl]);
 
   return (
     <>
       <Head>
         {/* Meta refresh is the fastest way to redirect on static sites */}
-        <meta httpEquiv="refresh" content="0;url=/shibalik-b" />
+        <meta httpEquiv="refresh" content={`0;url=${redirectUrl}`} />
         <title>Redirecting...</title>
       </Head>
       <main className="flex h-screen w-full flex-col items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4 text-center">
           <div className="relative flex h-16 w-16 items-center justify-center">
-            <div className="absolute h-full w-full animate-pulse rounded-full bg-primary/20"></div>
-            <BookCopy className="z-10 h-8 w-8 text-primary" />
+            <div className="absolute h-full w-full animate-pulse rounded-2xl bg-primary/20"></div>
+            <span className="z-10 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
+              <BookCopy className="h-6 w-6" />
+            </span>
           </div>
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="font-headline text-xl font-bold text-foreground">
               Society Ledger
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Loading Shibalik Apartment Block B documents...
             </p>
           </div>

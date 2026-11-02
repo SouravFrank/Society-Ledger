@@ -8,11 +8,17 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { DatePicker } from './ui/date-picker';
 import { MonthYearPicker } from './month-year-picker';
+import { CalendarDays, FileImage, FileText, Plus } from 'lucide-react';
+
+type TabId = 'minutes' | 'statements';
+
+const NAV_ITEMS: { id: TabId; label: string; fullLabel: string; icon: typeof FileText }[] = [
+  { id: 'minutes', label: 'Minutes', fullLabel: 'Meeting Summery', icon: FileText },
+  { id: 'statements', label: 'Statements', fullLabel: 'Financial Statements', icon: FileImage },
+];
 
 interface EditorDashboardProps {
   initialMeetingMinutes: MeetingMinute[];
@@ -24,11 +30,12 @@ export default function EditorDashboard({
   initialFinancialStatements,
 }: EditorDashboardProps) {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<TabId>('minutes');
 
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteUrl, setMinuteUrl] = useState<string>('');
   const [minuteTitle, setMinuteTitle] = useState('');
-  
+
   const [statementPeriod, setStatementPeriod] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
   const [statementUrl, setStatementUrl] = useState<string>('');
   const [statementTitle, setStatementTitle] = useState('');
@@ -73,71 +80,94 @@ export default function EditorDashboard({
   }
 
   return (
-    <Tabs defaultValue="minutes">
-      <div className="flex justify-start mb-6">
-        <TabsList>
-            <TabsTrigger value="minutes">Meeting Minutes</TabsTrigger>
-            <TabsTrigger value="statements">Financial Statements</TabsTrigger>
-        </TabsList>
-      </div>
-      
-      <TabsContent value="minutes">
-        <div className="grid gap-8 md:grid-cols-2">
-            <Card>
+    <>
+      <div className="pb-10">
+        {/* Top tab navigation: full labels wrapping into two balanced lines */}
+        <div className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+          <div className="mx-auto w-full max-w-3xl px-4 py-3">
+            <div className="grid grid-cols-2 gap-1 rounded-2xl bg-muted/50 p-1 shadow-sm ring-1 ring-border">
+              {NAV_ITEMS.map(({ id, fullLabel, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  aria-current={activeTab === id ? 'page' : undefined}
+                  className={
+                    'relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2.5 text-center transition-colors ' +
+                    (activeTab === id
+                      ? 'bg-background text-foreground shadow-sm ring-1 ring-primary'
+                      : 'text-muted-foreground hover:text-foreground active:bg-background/60')
+                  }
+                >
+                  <Icon className="h-5 w-5 shrink-0" />
+                  <span className="whitespace-normal text-balance text-[11px] font-semibold leading-tight">
+                    {fullLabel}
+                  </span>
+                  {activeTab === id && (
+                    <span className="absolute -bottom-1 h-1 w-6 rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {activeTab === 'minutes' && (
+          <div className="space-y-6">
+            <Card className="rounded-2xl shadow-sm">
                 <CardHeader>
-                    <CardTitle>Upload Meeting Minutes</CardTitle>
+                    <CardTitle className="font-headline flex items-center gap-2 text-lg">
+                        <Plus className="h-5 w-5 text-primary" /> Add Meeting Minutes
+                    </CardTitle>
                     <CardDescription>Enter the Google Drive link for the meeting minutes PDF.</CardDescription>
                 </CardHeader>
                 <form action={handleMinuteSubmit}>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
                         <Label>Meeting Date</Label>
-                        <DatePicker date={minuteDate} setDate={setMinuteDate} />
-                         {minuteTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{minuteTitle}"</p>}
+                        <DatePicker date={minuteDate} setDate={setMinuteDate} className="h-11 w-full rounded-xl" />
+                         {minuteTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{minuteTitle}"</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="minute-url">Google Drive Link</Label>
-                        <Input id="minute-url" name="url" type="text" placeholder="https://drive.google.com/file/d/..." value={minuteUrl} onChange={(e) => setMinuteUrl(e.target.value)} />
+                        <Input id="minute-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={minuteUrl} onChange={(e) => setMinuteUrl(e.target.value)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={!minuteUrl || !minuteDate}>Save Minute</Button>
+                    <Button type="submit" disabled={!minuteUrl || !minuteDate} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Minute</Button>
                 </CardFooter>
                 </form>
             </Card>
-            <Card>
+            <Card className="rounded-2xl shadow-sm">
                 <CardHeader>
-                    <CardTitle>Existing Meeting Minutes</CardTitle>
+                    <CardTitle className="font-headline text-lg">Existing Meeting Minutes</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="max-h-96 overflow-y-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Title</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {initialMeetingMinutes.map((minute) => (
-                                    <TableRow key={minute.id}>
-                                        <TableCell>{format(new Date(minute.date), 'PPP')}</TableCell>
-                                        <TableCell>{minute.title}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                <CardContent className="p-2 pt-0">
+                    <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
+                        {initialMeetingMinutes.map((minute) => (
+                            <div key={minute.id ?? minute.date} className="flex items-center gap-3 px-3 py-3">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <CalendarDays className="h-4 w-4" />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold">{format(new Date(minute.date), 'PPP')}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{minute.title ?? 'Meeting minutes'}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </CardContent>
             </Card>
-        </div>
-      </TabsContent>
+          </div>
+        )}
 
-      <TabsContent value="statements">
-      <div className="grid gap-8 md:grid-cols-2">
-            <Card>
+        {activeTab === 'statements' && (
+          <div className="space-y-6">
+            <Card className="rounded-2xl shadow-sm">
                 <CardHeader>
-                    <CardTitle>Upload Financial Statement</CardTitle>
+                    <CardTitle className="font-headline flex items-center gap-2 text-lg">
+                        <Plus className="h-5 w-5 text-primary" /> Add Financial Statement
+                    </CardTitle>
                     <CardDescription>Enter the Google Drive link for the financial statement image.</CardDescription>
                 </CardHeader>
                  <form action={handleStatementSubmit}>
@@ -145,45 +175,41 @@ export default function EditorDashboard({
                     <div className="space-y-2">
                         <Label>Statement Period</Label>
                         <MonthYearPicker period={statementPeriod} onPeriodChange={setStatementPeriod} />
-                         {statementTitle && <p className="text-sm text-muted-foreground pt-1">Generated Title: "{statementTitle}"</p>}
+                         {statementTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{statementTitle}"</p>}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="statement-url">Google Drive Link</Label>
-                        <Input id="statement-url" name="url" type="text" placeholder="https://drive.google.com/file/d/..." value={statementUrl} onChange={(e) => setStatementUrl(e.target.value)} />
+                        <Input id="statement-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={statementUrl} onChange={(e) => setStatementUrl(e.target.value)} />
                     </div>
                 </CardContent>
                 <CardFooter>
-                    <Button type="submit" disabled={!statementUrl}>Save Statement</Button>
+                    <Button type="submit" disabled={!statementUrl} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Statement</Button>
                 </CardFooter>
                 </form>
             </Card>
-            <Card>
+            <Card className="rounded-2xl shadow-sm">
                 <CardHeader>
-                    <CardTitle>Existing Financial Statements</CardTitle>
+                    <CardTitle className="font-headline text-lg">Existing Financial Statements</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <div className="max-h-96 overflow-y-auto">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Period</TableHead>
-                                    <TableHead>Title</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {initialFinancialStatements.map((statement) => (
-                                    <TableRow key={statement.period}>
-                                        <TableCell>{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</TableCell>
-                                        <TableCell>{statement.title}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                <CardContent className="p-2 pt-0">
+                    <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
+                        {initialFinancialStatements.map((statement) => (
+                            <div key={statement.period} className="flex items-center gap-3 px-3 py-3">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <FileImage className="h-4 w-4" />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold">{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{statement.title ?? 'Financial statement'}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </CardContent>
             </Card>
-        </div>
-      </TabsContent>
-    </Tabs>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

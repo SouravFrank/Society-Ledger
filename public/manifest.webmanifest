@@ -1,0 +1,19 @@
+{
+  "name": "Society Ledger — Shibalik Block B",
+  "short_name": "Society Ledger",
+  "description": "Meeting minutes and financial statements for Shibalik Apartment (Block B).",
+  "start_url": "./shibalik-b/",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#9ac663",
+  "icons": [
+    {
+      "src": "./resources/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

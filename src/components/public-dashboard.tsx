@@ -5,17 +5,24 @@ import { format } from 'date-fns';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { groupBy } from 'lodash';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from './ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { FileText, ImageIcon, Loader2 } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronRight,
+  FileImage,
+  FileText,
+  Loader2,
+  ShieldCheck,
+} from 'lucide-react';
+
+type TabId = 'minutes' | 'statements' | 'iron-guard';
+
+const NAV_ITEMS: { id: TabId; label: string; fullLabel: string; icon: typeof FileText }[] = [
+  { id: 'minutes', label: 'Minutes', fullLabel: 'Meeting Summery', icon: FileText },
+  { id: 'statements', label: 'Statements', fullLabel: 'Financial Statements', icon: FileImage },
+  { id: 'iron-guard', label: 'Iron Guard', fullLabel: 'Iron Guard Finances', icon: ShieldCheck },
+];
 
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
@@ -29,6 +36,7 @@ export default function PublicDashboard({
   financialStatements,
   ironGuardStatus,
 }: PublicDashboardProps) {
+  const [activeTab, setActiveTab] = useState<TabId>('minutes');
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedIronGuard, setSelectedIronGuard] = useState<FinancialStatement | null>(null);
@@ -70,7 +78,144 @@ export default function PublicDashboard({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 md:px-6">
+    <>
+      <div className="pb-10">
+        {/* Top tab navigation: full labels wrapping into two balanced lines */}
+        <div className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
+          <div className="mx-auto w-full max-w-3xl px-4 py-3">
+            <div className="grid grid-cols-3 gap-1 rounded-2xl bg-muted/50 p-1 shadow-sm ring-1 ring-border">
+              {NAV_ITEMS.map(({ id, fullLabel, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  aria-current={activeTab === id ? 'page' : undefined}
+                  className={
+                    'relative flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2.5 text-center transition-colors ' +
+                    (activeTab === id
+                      ? 'bg-background text-foreground shadow-sm ring-1 ring-primary'
+                      : 'text-muted-foreground hover:text-foreground active:bg-background/60')
+                  }
+                >
+                  <Icon className="h-6 w-6 shrink-0" />
+                  <span className="whitespace-normal text-balance text-[14px] font-semibold leading-tight">
+                    {fullLabel}
+                  </span>
+                  {activeTab === id && (
+                    <span className="absolute -bottom-1 h-1 w-6 rounded-full bg-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-3xl px-4">
+          {/* Meeting Minutes: year-grouped, tappable list */}
+          {activeTab === 'minutes' && (
+            groupedMeetingMinutes.map(([year, minutes]) => (
+              <section key={year} className="mb-6">
+                <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {year}
+                </h3>
+                <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+                  {(minutes as MeetingMinute[]).map((minute) => (
+                    <button
+                      key={minute.date}
+                      onClick={() => {
+                        setSelectedMinute(minute);
+                        setIsLoading(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <CalendarDays className="h-5 w-5" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[15px] font-semibold text-foreground">
+                          {format(new Date(minute.date), 'MMMM dd, yyyy')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Meeting minutes</span>
+                      </span>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+
+          {/* Financial Statements: year-grouped, tappable list */}
+          {activeTab === 'statements' && (
+            groupedFinancialStatements.map(([year, statements]) => (
+              <section key={year} className="mb-6">
+                <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {year}
+                </h3>
+                <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+                  {(statements as FinancialStatement[]).map((statement) => (
+                    <button
+                      key={statement.period}
+                      onClick={() => {
+                        setSelectedStatement(statement);
+                        setIsLoading(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <FileImage className="h-5 w-5" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[15px] font-semibold text-foreground">
+                          {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Financial statement</span>
+                      </span>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+
+          {/* Iron Guard Fund: feature card */}
+          {activeTab === 'iron-guard' && (
+            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6 text-center">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+                  <ShieldCheck className="h-7 w-7" />
+                </span>
+                <h3 className="font-headline mt-4 text-lg font-bold text-foreground">
+                  Iron Guard Fund Status
+                </h3>
+                <p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">
+                  View the latest status image of the Iron Guard fund.
+                </p>
+              </div>
+              <div className="p-4">
+                <Button
+                  className="h-12 w-full rounded-xl text-base font-semibold"
+                  disabled={!ironGuardStatus}
+                  onClick={() => {
+                    if (ironGuardStatus) {
+                      // use the existing iframe viewer by setting selectedStatement
+                      setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url });
+                      setIsLoading(true);
+                      // clear any image-specific selection
+                      setSelectedIronGuard(null);
+                    }
+                  }}
+                >
+                  See Latest Status
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Full-screen document viewer on mobile, modal on desktop */}
       <Dialog open={!!selectedStatement || !!selectedMinute || !!selectedIronGuard} onOpenChange={(isOpen) => {
         if (!isOpen) {
           setSelectedStatement(null);
@@ -79,117 +224,24 @@ export default function PublicDashboard({
           setIsLoading(false);
         }
       }}>
-        {!selectedStatement && !selectedMinute && (
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
-              <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2">
-                  <FileText className="h-6 w-6" /> Meeting Minutes
-                </CardTitle>
-                <CardDescription>Select a date to view the meeting minutes.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-grow items-center justify-center p-6">
-                <Select onValueChange={(date) => {
-                  setSelectedMinute(meetingMinutes.find(m => m.date === date) || null);
-                  setIsLoading(true);
-                }}>
-                  <SelectTrigger className="w-full max-w-sm">
-                    <SelectValue placeholder="Select a meeting date" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {groupedMeetingMinutes.map(([year, minutes]) => (
-                      <div key={year}>
-                        <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
-                        {(minutes as MeetingMinute[]).map((minute) => (
-                          <SelectItem key={minute.date} value={minute.date}>
-                            {format(new Date(minute.date), 'MMMM dd, yyyy')}
-                          </SelectItem>
-                        ))}
-                      </div>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-
-              <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
-              <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2">
-                  <ImageIcon className="h-6 w-6" /> Financial Statements
-                </CardTitle>
-                <CardDescription>Select a period to view the financial statement.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-grow items-center justify-center p-6">
-                <Select onValueChange={(period) => {
-                  setSelectedStatement(financialStatements.find(s => s.period === period) || null);
-                  setIsLoading(true);
-                }}>
-                  <SelectTrigger className="w-full max-w-sm">
-                    <SelectValue placeholder="Select a statement period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {groupedFinancialStatements.map(([year, statements]) => (
-                      <div key={year}>
-                        <div className="px-2 py-1 font-bold text-gray-700">{year}</div>
-                        {(statements as FinancialStatement[]).map((statement) => (
-                          <SelectItem key={statement.period} value={statement.period}>
-                            {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
-                          </SelectItem>
-                        ))}
-                      </div>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-
-              <Card className="flex flex-col bg-[hsl(84,48%,95%)] shadow-xl rounded-lg border border-[hsl(84,48%,88%)]">
-                <CardHeader>
-                  <CardTitle className="font-headline flex items-center gap-2">
-                    <ImageIcon className="h-6 w-6" /> Iron Guard Fund Status
-                  </CardTitle>
-                  <CardDescription>Click to view the latest Iron Guard Fund status image.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-grow items-center justify-center p-6">
-                  <div className="w-full max-w-sm text-center">
-                    <Button
-                      className="w-full"
-                      onClick={() => {
-                        if (ironGuardStatus) {
-                          // use the existing iframe viewer by setting selectedStatement
-                          setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url });
-                          setIsLoading(true);
-                          // clear any image-specific selection
-                          setSelectedIronGuard(null);
-                        }
-                      }}
-                    >
-                      See Latest Status
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-          </div>
-        )}
-
         {(selectedStatement?.url || selectedMinute?.url || selectedIronGuard?.url) && (
-          <DialogContent className="w-[95vw] max-w-4xl h-[90vh] flex flex-col p-4 sm:p-6">
-            <DialogHeader>
-              <DialogTitle>
+          <DialogContent className="h-[100dvh] w-full max-w-none gap-0 rounded-none border-0 p-0 sm:h-[88vh] sm:max-w-4xl sm:rounded-2xl sm:p-4">
+            <DialogHeader className="flex-row items-center border-b p-4 sm:border-0 sm:p-0">
+              <DialogTitle className="flex-1 truncate pr-12 text-base sm:pr-10">
                 {selectedStatement
                   ? selectedStatement.period === 'iron-guard'
                     ? 'Iron Guard Fund Status'
                     : format(new Date(selectedStatement.period + '-01'), 'MMMM yyyy')
                   : selectedIronGuard
-                  ? format(new Date(selectedIronGuard.period + '-01'), 'MMMM yyyy')
-                  : selectedMinute
-                  ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
-                  : 'No Date Available'}
+                    ? format(new Date(selectedIronGuard.period + '-01'), 'MMMM yyyy')
+                    : selectedMinute
+                      ? format(new Date(selectedMinute.date), 'MMMM dd, yyyy')
+                      : 'No Date Available'}
               </DialogTitle>
             </DialogHeader>
-            <div className="flex-1 mt-4 bg-white flex items-center justify-center relative">
+            <div className="relative mt-0 min-h-0 flex-1 bg-white sm:mt-3 sm:rounded-xl">
               {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-md z-10">
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-md bg-white/80">
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
                     <p className="text-sm text-gray-600">Loading...</p>
@@ -200,14 +252,14 @@ export default function PublicDashboard({
                 <img
                   src={getDriveImageUrl(selectedIronGuard.url)}
                   alt={`Iron Guard Status ${selectedIronGuard.period}`}
-                  className="max-h-[80vh] w-full object-contain rounded-md"
+                  className="max-h-[80vh] w-full rounded-md object-contain"
                   onLoad={() => setIsLoading(false)}
                 />
               ) : (
                 <iframe
                   key={selectedStatement ? `statement-${selectedStatement.period}` : `minute-${selectedMinute?.date}`}
                   src={getViewerUrl(selectedStatement?.url || selectedMinute?.url || '')}
-                  className="w-full h-full border-0 rounded-md"
+                  className="h-full w-full rounded-md border-0"
                   title={selectedStatement?.formattedDate || selectedMinute?.formattedDate || 'No Date Available'}
                   onLoad={() => setIsLoading(false)}
                 />
@@ -216,6 +268,6 @@ export default function PublicDashboard({
           </DialogContent>
         )}
       </Dialog>
-    </div>
+    </>
   );
 }

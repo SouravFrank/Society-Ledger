@@ -14,6 +14,11 @@ export function LoginForm() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const isGithubPages = process.env.GITHUB_PAGES === 'true';
+  const repoName = 'Society-Ledger';
+  const basePath = isGithubPages ? `/${repoName}` : '';
+  const editorUrl = `${basePath}/shibalik-b/editor`;
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
@@ -24,7 +29,7 @@ export function LoginForm() {
         password === editorCredentials.password
       ) {
         sessionStorage.setItem('auth_token', 'editor-secret-token');
-        router.push('/shibalik-b/editor');
+        router.push(editorUrl);
       } else {
         toast({
           variant: 'destructive',
@@ -44,7 +49,10 @@ export function LoginForm() {
           name="username"
           type="text"
           placeholder="Username"
+          autoCapitalize="none"
+          autoCorrect="off"
           required
+          className="h-11 rounded-xl"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           disabled={isPending}
@@ -57,12 +65,13 @@ export function LoginForm() {
           type="password"
           placeholder="Password"
           required
+          className="h-11 rounded-xl"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={isPending}
         />
       </div>
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" disabled={isPending} className="h-11 w-full rounded-xl text-base font-semibold">
         {isPending ? 'Logging in...' : 'Login'}
       </Button>
     </form>
