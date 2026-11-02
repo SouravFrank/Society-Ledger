@@ -1,24 +1,28 @@
-
 'use client';
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookCopy } from 'lucide-react';
 import Head from 'next/head';
+import { repoName } from '../../next.config';
 
 export default function HomePage() {
   const router = useRouter();
 
+  const isGithubPages = process.env.GITHUB_PAGES === 'true';
+  const basePath = isGithubPages ? `/${repoName}` : '';
+  const redirectUrl = `${basePath}/shibalik-b`;
+
   useEffect(() => {
     // Fallback redirect for clients with JavaScript enabled but slow initial load
-    router.replace('/shibalik-b');
-  }, [router]);
+    router.replace(redirectUrl);
+  }, [router, redirectUrl]);
 
   return (
     <>
       <Head>
         {/* Meta refresh is the fastest way to redirect on static sites */}
-        <meta httpEquiv="refresh" content="0;url=/shibalik-b" />
+        <meta httpEquiv="refresh" content={`0;url=${redirectUrl}`} />
         <title>Redirecting...</title>
       </Head>
       <main className="flex h-screen w-full flex-col items-center justify-center bg-background">

@@ -10,6 +10,7 @@ export default function PublicPage() {
   const sortedStatements = [...financialStatements].sort((a,b) => new Date(b.period + '-01').getTime() - new Date(a.period + '-01').getTime());
   const isGithubPages = process.env.GITHUB_PAGES === 'true';
   const imageSource = `${isGithubPages ? `/${repoName}` : ""}/resources/letter-header-only.png`;
+  const basePath = isGithubPages ? `/${repoName}` : '';
 
   return (
     <>
@@ -41,7 +42,7 @@ export default function PublicPage() {
       />
       <footer className="pb-safe mt-2 flex justify-center py-6">
         <Link
-          href="/shibalik-b/login"
+          href={`${basePath}/shibalik-b/login`}
           className="rounded-full px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           Editor Login

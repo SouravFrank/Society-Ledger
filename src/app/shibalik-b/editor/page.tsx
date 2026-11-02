@@ -9,15 +9,20 @@ export default function EditorPage() {
     const [authStatus, setAuthStatus] = useState<'checking' | 'authenticated' | 'unauthenticated'>('checking');
     const router = useRouter();
 
+    const isGithubPages = process.env.GITHUB_PAGES === 'true';
+    const repoName = 'Society-Ledger';
+    const basePath = isGithubPages ? `/${repoName}` : '';
+    const loginUrl = `${basePath}/shibalik-b/login`;
+
     useEffect(() => {
         const token = sessionStorage.getItem('auth_token');
         if (token === 'editor-secret-token') {
             setAuthStatus('authenticated');
         } else {
             setAuthStatus('unauthenticated');
-            router.replace('/shibalik-b/login');
+            router.replace(loginUrl);
         }
-    }, [router]);
+    }, [router, loginUrl]);
 
     if (authStatus === 'checking' || authStatus === 'unauthenticated') {
         return (
