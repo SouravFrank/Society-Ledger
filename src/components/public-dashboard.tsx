@@ -74,22 +74,22 @@ export default function PublicDashboard({
       {/* App-style segmented control, sticky under the app bar */}
       <div className="top-appbar sticky z-30 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
         <div className="mx-auto w-full max-w-3xl px-4 py-2.5">
-          <TabsList className="grid h-16 w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border sm:h-12">
+          <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border">
             <TabsTrigger
               value="minutes"
-              className="flex-col gap-1 rounded-xl px-1 text-[11px] font-semibold leading-tight data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
+              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
             >
               <FileText className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Meeting Summery
             </TabsTrigger>
             <TabsTrigger
               value="statements"
-              className="flex-col gap-1 rounded-xl px-1 text-[11px] font-semibold leading-tight data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
+              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
             >
               <FileImage className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Financial Statements
             </TabsTrigger>
             <TabsTrigger
               value="iron-guard"
-              className="flex-col gap-1 rounded-xl px-1 text-[11px] font-semibold leading-tight data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm"
+              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
             >
               <ShieldCheck className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Iron Guard Finances
             </TabsTrigger>
