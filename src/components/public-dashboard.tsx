@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import type { FinancialStatement, MeetingMinute } from '@/lib/types';
 import { groupBy } from 'lodash';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import {
@@ -16,6 +15,14 @@ import {
   Loader2,
   ShieldCheck,
 } from 'lucide-react';
+
+type TabId = 'minutes' | 'statements' | 'iron-guard';
+
+const NAV_ITEMS: { id: TabId; label: string; fullLabel: string; icon: typeof FileText }[] = [
+  { id: 'minutes', label: 'Minutes', fullLabel: 'Meeting Summery', icon: FileText },
+  { id: 'statements', label: 'Statements', fullLabel: 'Financial Statements', icon: FileImage },
+  { id: 'iron-guard', label: 'Iron Guard', fullLabel: 'Iron Guard Finances', icon: ShieldCheck },
+];
 
 interface PublicDashboardProps {
   meetingMinutes: MeetingMinute[];
@@ -29,6 +36,7 @@ export default function PublicDashboard({
   financialStatements,
   ironGuardStatus,
 }: PublicDashboardProps) {
+  const [activeTab, setActiveTab] = useState<TabId>('minutes');
   const [selectedStatement, setSelectedStatement] = useState<FinancialStatement | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<MeetingMinute | null>(null);
   const [selectedIronGuard, setSelectedIronGuard] = useState<FinancialStatement | null>(null);
@@ -70,135 +78,165 @@ export default function PublicDashboard({
   };
 
   return (
-    <Tabs defaultValue="minutes" className="w-full">
-      {/* App-style segmented control, sticky under the app bar */}
-      <div className="top-appbar sticky z-30 border-b bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-        <div className="mx-auto w-full max-w-3xl px-4 py-2.5">
-          <TabsList className="grid w-full grid-cols-3 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border">
-            <TabsTrigger
-              value="minutes"
-              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
-            >
-              <FileText className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Meeting Summery
-            </TabsTrigger>
-            <TabsTrigger
-              value="statements"
-              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
-            >
-              <FileImage className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Financial Statements
-            </TabsTrigger>
-            <TabsTrigger
-              value="iron-guard"
-              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
-            >
-              <ShieldCheck className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Iron Guard Finances
-            </TabsTrigger>
-          </TabsList>
-        </div>
-      </div>
-
-      <div className="mx-auto w-full max-w-3xl px-4">
-        {/* Meeting Minutes: year-grouped, tappable list */}
-        <TabsContent value="minutes" className="mt-4">
-          {groupedMeetingMinutes.map(([year, minutes]) => (
-            <section key={year} className="mb-6">
-              <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                {year}
-              </h3>
-              <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
-                {(minutes as MeetingMinute[]).map((minute) => (
-                  <button
-                    key={minute.date}
-                    onClick={() => {
-                      setSelectedMinute(minute);
-                      setIsLoading(true);
-                    }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <CalendarDays className="h-5 w-5" />
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[15px] font-semibold text-foreground">
-                        {format(new Date(minute.date), 'MMMM dd, yyyy')}
-                      </span>
-                      <span className="text-xs text-muted-foreground">Meeting minutes</span>
-                    </span>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
-                  </button>
-                ))}
-              </div>
-            </section>
-          ))}
-        </TabsContent>
-
-        {/* Financial Statements: year-grouped, tappable list */}
-        <TabsContent value="statements" className="mt-4">
-          {groupedFinancialStatements.map(([year, statements]) => (
-            <section key={year} className="mb-6">
-              <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                {year}
-              </h3>
-              <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
-                {(statements as FinancialStatement[]).map((statement) => (
-                  <button
-                    key={statement.period}
-                    onClick={() => {
-                      setSelectedStatement(statement);
-                      setIsLoading(true);
-                    }}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                      <FileImage className="h-5 w-5" />
-                    </span>
-                    <span className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-[15px] font-semibold text-foreground">
-                        {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
-                      </span>
-                      <span className="text-xs text-muted-foreground">Financial statement</span>
-                    </span>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
-                  </button>
-                ))}
-              </div>
-            </section>
-          ))}
-        </TabsContent>
-
-        {/* Iron Guard Fund: feature card */}
-        <TabsContent value="iron-guard" className="mt-4">
-          <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6 text-center">
-              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
-                <ShieldCheck className="h-7 w-7" />
-              </span>
-              <h3 className="font-headline mt-4 text-lg font-bold text-foreground">
-                Iron Guard Fund Status
-              </h3>
-              <p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">
-                View the latest status image of the Iron Guard fund.
-              </p>
-            </div>
-            <div className="p-4">
-              <Button
-                className="h-12 w-full rounded-xl text-base font-semibold"
-                disabled={!ironGuardStatus}
-                onClick={() => {
-                  if (ironGuardStatus) {
-                    // use the existing iframe viewer by setting selectedStatement
-                    setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url });
-                    setIsLoading(true);
-                    // clear any image-specific selection
-                    setSelectedIronGuard(null);
+    <>
+      <div className="pb-28 sm:pb-8">
+        {/* Desktop: pill-style tab row */}
+        <div className="hidden sm:block">
+          <div className="mx-auto mb-6 flex w-full max-w-3xl justify-center">
+            <div className="inline-flex h-12 items-center gap-1 rounded-full bg-muted/60 p-1 shadow-sm ring-1 ring-border">
+              {NAV_ITEMS.map(({ id, fullLabel, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  aria-current={activeTab === id ? 'page' : undefined}
+                  className={
+                    'inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors ' +
+                    (activeTab === id
+                      ? 'bg-background text-foreground shadow'
+                      : 'text-muted-foreground hover:text-foreground')
                   }
-                }}
-              >
-                See Latest Status
-              </Button>
+                >
+                  <Icon className="h-5 w-5" />
+                  {fullLabel}
+                </button>
+              ))}
             </div>
           </div>
-        </TabsContent>
+        </div>
+
+        {/* Mobile: bottom tab bar */}
+        <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur-md sm:hidden">
+          <div className="mx-auto grid max-w-3xl grid-cols-3">
+            {NAV_ITEMS.map(({ id, label, fullLabel, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                aria-label={fullLabel}
+                aria-current={activeTab === id ? 'page' : undefined}
+                className={
+                  'relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ' +
+                  (activeTab === id
+                    ? 'text-primary'
+                    : 'text-muted-foreground active:text-primary')
+                }
+              >
+                <span className="relative flex h-6 w-6 items-center justify-center">
+                  <Icon className="h-5 w-5" />
+                  {activeTab === id && (
+                    <span className="absolute -bottom-1.5 h-1 w-1 rounded-full bg-primary" />
+                  )}
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        <div className="mx-auto w-full max-w-3xl px-4">
+          {/* Meeting Minutes: year-grouped, tappable list */}
+          {activeTab === 'minutes' && (
+            groupedMeetingMinutes.map(([year, minutes]) => (
+              <section key={year} className="mb-6">
+                <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {year}
+                </h3>
+                <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+                  {(minutes as MeetingMinute[]).map((minute) => (
+                    <button
+                      key={minute.date}
+                      onClick={() => {
+                        setSelectedMinute(minute);
+                        setIsLoading(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <CalendarDays className="h-5 w-5" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[15px] font-semibold text-foreground">
+                          {format(new Date(minute.date), 'MMMM dd, yyyy')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Meeting minutes</span>
+                      </span>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+
+          {/* Financial Statements: year-grouped, tappable list */}
+          {activeTab === 'statements' && (
+            groupedFinancialStatements.map(([year, statements]) => (
+              <section key={year} className="mb-6">
+                <h3 className="mb-2 px-1 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  {year}
+                </h3>
+                <div className="divide-y overflow-hidden rounded-2xl border bg-card shadow-sm">
+                  {(statements as FinancialStatement[]).map((statement) => (
+                    <button
+                      key={statement.period}
+                      onClick={() => {
+                        setSelectedStatement(statement);
+                        setIsLoading(true);
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-primary/10"
+                    >
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <FileImage className="h-5 w-5" />
+                      </span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="truncate text-[15px] font-semibold text-foreground">
+                          {format(new Date(statement.period + '-01'), 'MMMM yyyy')}
+                        </span>
+                        <span className="text-xs text-muted-foreground">Financial statement</span>
+                      </span>
+                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/60" />
+                    </button>
+                  ))}
+                </div>
+              </section>
+            ))
+          )}
+
+          {/* Iron Guard Fund: feature card */}
+          {activeTab === 'iron-guard' && (
+            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+              <div className="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6 text-center">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-md">
+                  <ShieldCheck className="h-7 w-7" />
+                </span>
+                <h3 className="font-headline mt-4 text-lg font-bold text-foreground">
+                  Iron Guard Fund Status
+                </h3>
+                <p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">
+                  View the latest status image of the Iron Guard fund.
+                </p>
+              </div>
+              <div className="p-4">
+                <Button
+                  className="h-12 w-full rounded-xl text-base font-semibold"
+                  disabled={!ironGuardStatus}
+                  onClick={() => {
+                    if (ironGuardStatus) {
+                      // use the existing iframe viewer by setting selectedStatement
+                      setSelectedStatement({ period: 'iron-guard', url: ironGuardStatus.url });
+                      setIsLoading(true);
+                      // clear any image-specific selection
+                      setSelectedIronGuard(null);
+                    }
+                  }}
+                >
+                  See Latest Status
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Full-screen document viewer on mobile, modal on desktop */}
@@ -254,6 +292,6 @@ export default function PublicDashboard({
           </DialogContent>
         )}
       </Dialog>
-    </Tabs>
+    </>
   );
 }

@@ -8,11 +8,17 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { DatePicker } from './ui/date-picker';
 import { MonthYearPicker } from './month-year-picker';
 import { CalendarDays, FileImage, FileText, Plus } from 'lucide-react';
+
+type TabId = 'minutes' | 'statements';
+
+const NAV_ITEMS: { id: TabId; label: string; fullLabel: string; icon: typeof FileText }[] = [
+  { id: 'minutes', label: 'Minutes', fullLabel: 'Meeting Summery', icon: FileText },
+  { id: 'statements', label: 'Statements', fullLabel: 'Financial Statements', icon: FileImage },
+];
 
 interface EditorDashboardProps {
   initialMeetingMinutes: MeetingMinute[];
@@ -24,6 +30,7 @@ export default function EditorDashboard({
   initialFinancialStatements,
 }: EditorDashboardProps) {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<TabId>('minutes');
 
   const [minuteDate, setMinuteDate] = useState<Date | undefined>();
   const [minuteUrl, setMinuteUrl] = useState<string>('');
@@ -73,118 +80,160 @@ export default function EditorDashboard({
   }
 
   return (
-    <Tabs defaultValue="minutes" className="w-full">
-      {/* App-style segmented control - prominent and sticky */}
-      <div className="sticky top-0 z-30 border-b bg-background/80 px-4 py-3 backdrop-blur-md supports-[backdrop-filter]:bg-background/75">
-        <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-2 gap-1 bg-muted/50 p-1 rounded-2xl shadow-sm ring-1 ring-border">
-            <TabsTrigger
-              value="minutes"
-              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
-            >
-              <FileText className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Meeting Summery
-            </TabsTrigger>
-            <TabsTrigger
-              value="statements"
-              className="min-w-0 flex-col gap-1 rounded-xl px-1 py-2 text-center text-[11px] font-semibold leading-tight whitespace-normal text-balance data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-primary sm:flex-row sm:gap-2 sm:px-3 sm:text-sm sm:whitespace-nowrap sm:text-left"
-            >
-              <FileImage className="h-4 w-4 shrink-0 sm:h-5 sm:w-5" /> Financial Statements
-            </TabsTrigger>
-        </TabsList>
+    <>
+      <div className="pb-28 sm:pb-8">
+        {/* Desktop: pill-style tab row */}
+        <div className="hidden sm:block">
+          <div className="mb-6 flex w-full justify-center">
+            <div className="inline-flex h-12 items-center gap-1 rounded-full bg-muted/60 p-1 shadow-sm ring-1 ring-border">
+              {NAV_ITEMS.map(({ id, fullLabel, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveTab(id)}
+                  aria-current={activeTab === id ? 'page' : undefined}
+                  className={
+                    'inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-semibold transition-colors ' +
+                    (activeTab === id
+                      ? 'bg-background text-foreground shadow'
+                      : 'text-muted-foreground hover:text-foreground')
+                  }
+                >
+                  <Icon className="h-5 w-5" />
+                  {fullLabel}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile: bottom tab bar */}
+        <nav className="pb-safe fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur-md sm:hidden">
+          <div className="mx-auto grid max-w-3xl grid-cols-2">
+            {NAV_ITEMS.map(({ id, label, fullLabel, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setActiveTab(id)}
+                aria-label={fullLabel}
+                aria-current={activeTab === id ? 'page' : undefined}
+                className={
+                  'relative flex flex-col items-center gap-0.5 py-2.5 text-[10px] font-semibold transition-colors ' +
+                  (activeTab === id
+                    ? 'text-primary'
+                    : 'text-muted-foreground active:text-primary')
+                }
+              >
+                <span className="relative flex h-6 w-6 items-center justify-center">
+                  <Icon className="h-5 w-5" />
+                  {activeTab === id && (
+                    <span className="absolute -bottom-1.5 h-1 w-1 rounded-full bg-primary" />
+                  )}
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
+        {activeTab === 'minutes' && (
+          <div className="space-y-6">
+            <Card className="rounded-2xl shadow-sm">
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-2 text-lg">
+                        <Plus className="h-5 w-5 text-primary" /> Add Meeting Minutes
+                    </CardTitle>
+                    <CardDescription>Enter the Google Drive link for the meeting minutes PDF.</CardDescription>
+                </CardHeader>
+                <form action={handleMinuteSubmit}>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label>Meeting Date</Label>
+                        <DatePicker date={minuteDate} setDate={setMinuteDate} className="h-11 w-full rounded-xl" />
+                         {minuteTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{minuteTitle}"</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="minute-url">Google Drive Link</Label>
+                        <Input id="minute-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={minuteUrl} onChange={(e) => setMinuteUrl(e.target.value)} />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" disabled={!minuteUrl || !minuteDate} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Minute</Button>
+                </CardFooter>
+                </form>
+            </Card>
+            <Card className="rounded-2xl shadow-sm">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg">Existing Meeting Minutes</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2 pt-0">
+                    <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
+                        {initialMeetingMinutes.map((minute) => (
+                            <div key={minute.id ?? minute.date} className="flex items-center gap-3 px-3 py-3">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <CalendarDays className="h-4 w-4" />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold">{format(new Date(minute.date), 'PPP')}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{minute.title ?? 'Meeting minutes'}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'statements' && (
+          <div className="space-y-6">
+            <Card className="rounded-2xl shadow-sm">
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-2 text-lg">
+                        <Plus className="h-5 w-5 text-primary" /> Add Financial Statement
+                    </CardTitle>
+                    <CardDescription>Enter the Google Drive link for the financial statement image.</CardDescription>
+                </CardHeader>
+                 <form action={handleStatementSubmit}>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label>Statement Period</Label>
+                        <MonthYearPicker period={statementPeriod} onPeriodChange={setStatementPeriod} />
+                         {statementTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{statementTitle}"</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="statement-url">Google Drive Link</Label>
+                        <Input id="statement-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={statementUrl} onChange={(e) => setStatementUrl(e.target.value)} />
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" disabled={!statementUrl} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Statement</Button>
+                </CardFooter>
+                </form>
+            </Card>
+            <Card className="rounded-2xl shadow-sm">
+                <CardHeader>
+                    <CardTitle className="font-headline text-lg">Existing Financial Statements</CardTitle>
+                </CardHeader>
+                <CardContent className="p-2 pt-0">
+                    <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
+                        {initialFinancialStatements.map((statement) => (
+                            <div key={statement.period} className="flex items-center gap-3 px-3 py-3">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                    <FileImage className="h-4 w-4" />
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                    <p className="truncate text-sm font-semibold">{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</p>
+                                    <p className="truncate text-xs text-muted-foreground">{statement.title ?? 'Financial statement'}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
-
-      <TabsContent value="minutes" className="mt-4 space-y-6">
-        <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2 text-lg">
-                    <Plus className="h-5 w-5 text-primary" /> Add Meeting Minutes
-                </CardTitle>
-                <CardDescription>Enter the Google Drive link for the meeting minutes PDF.</CardDescription>
-            </CardHeader>
-            <form action={handleMinuteSubmit}>
-            <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label>Meeting Date</Label>
-                    <DatePicker date={minuteDate} setDate={setMinuteDate} className="h-11 w-full rounded-xl" />
-                     {minuteTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{minuteTitle}"</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="minute-url">Google Drive Link</Label>
-                    <Input id="minute-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={minuteUrl} onChange={(e) => setMinuteUrl(e.target.value)} />
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button type="submit" disabled={!minuteUrl || !minuteDate} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Minute</Button>
-            </CardFooter>
-            </form>
-        </Card>
-        <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-                <CardTitle className="font-headline text-lg">Existing Meeting Minutes</CardTitle>
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-                <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
-                    {initialMeetingMinutes.map((minute) => (
-                        <div key={minute.id ?? minute.date} className="flex items-center gap-3 px-3 py-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <CalendarDays className="h-4 w-4" />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold">{format(new Date(minute.date), 'PPP')}</p>
-                                <p className="truncate text-xs text-muted-foreground">{minute.title ?? 'Meeting minutes'}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="statements" className="mt-4 space-y-6">
-        <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2 text-lg">
-                    <Plus className="h-5 w-5 text-primary" /> Add Financial Statement
-                </CardTitle>
-                <CardDescription>Enter the Google Drive link for the financial statement image.</CardDescription>
-            </CardHeader>
-             <form action={handleStatementSubmit}>
-            <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label>Statement Period</Label>
-                    <MonthYearPicker period={statementPeriod} onPeriodChange={setStatementPeriod} />
-                     {statementTitle && <p className="pt-1 text-sm text-muted-foreground">Generated Title: "{statementTitle}"</p>}
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="statement-url">Google Drive Link</Label>
-                    <Input id="statement-url" name="url" type="text" inputMode="url" autoCapitalize="none" autoCorrect="off" placeholder="https://drive.google.com/file/d/..." className="h-11 rounded-xl" value={statementUrl} onChange={(e) => setStatementUrl(e.target.value)} />
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button type="submit" disabled={!statementUrl} className="h-11 w-full rounded-xl font-semibold sm:w-auto">Save Statement</Button>
-            </CardFooter>
-            </form>
-        </Card>
-        <Card className="rounded-2xl shadow-sm">
-            <CardHeader>
-                <CardTitle className="font-headline text-lg">Existing Financial Statements</CardTitle>
-            </CardHeader>
-            <CardContent className="p-2 pt-0">
-                <div className="max-h-[420px] divide-y overflow-y-auto rounded-xl">
-                    {initialFinancialStatements.map((statement) => (
-                        <div key={statement.period} className="flex items-center gap-3 px-3 py-3">
-                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <FileImage className="h-4 w-4" />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <p className="truncate text-sm font-semibold">{format(new Date(statement.period + '-02'), 'MMMM yyyy')}</p>
-                                <p className="truncate text-xs text-muted-foreground">{statement.title ?? 'Financial statement'}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
-      </TabsContent>
-    </Tabs>
+    </>
   );
 }
